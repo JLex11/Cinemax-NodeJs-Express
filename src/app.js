@@ -38,6 +38,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/Usuarios/", usuariosRoutes);
 app.use("/Generos/", generosRoutes);
 app.use("/Peliculas/", peliculasRoutes);
+app.use("*", (req, res) => {
+    res.render("lost_client", {
+        data: null,
+    });
+});
 
 //static files
 app.use(express.static(path.join(__dirname, 'public')));
