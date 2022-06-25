@@ -1,4 +1,5 @@
-const { connect } = require("../routes/usuarios");
+/* const { json } = require('express');
+const { connect } = require('../routes/usuarios'); */
 
 const controller = {};
 
@@ -7,7 +8,7 @@ controller.listAll = (req, res) => {
         conn.query('SELECT * FROM usuario WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
-            res.render("usuarios", {
+            res.render('usuarios', {
                 data: rows,
             });
         });
@@ -15,18 +16,26 @@ controller.listAll = (req, res) => {
 };
 
 controller.listOne = (req, res) => {
-    res.send("One user show");
+    let { user } = req.params;
+
+    req.getConnection((err, conn) => {
+        conn.query('SELECT * FROM usuario WHERE user = ? estado = "T"', user, (err, rows) => {
+            if (err) res.json(err);
+
+            res.render('usuarios', {
+                data: rows,
+            });
+        });
+    });
 };
 
 controller.save = (req, res) => {
-    let usuarioData = req.body;
-
     req.getConnection((err, conn) => {
         if (err) res.json(err);
 
-        conn.query("INSERT INTO usuario SET ?", usuarioData, (err, rows) => {
+        conn.query('INSERT INTO usuario SET ?', req.body, (err, rows) => {
             console.log(rows);
-            res.redirect("/Usuarios/");
+            res.redirect('/Usuarios/');
         });
     });
 };
@@ -37,9 +46,9 @@ controller.edit = (req, res) => {
     req.getConnection((err, conn) => {
         if (err) res.json(err);
 
-        conn.query("SELECT * FROM usuario WHERE usuario = ?", user, (err, rows) => {
+        conn.query('SELECT * FROM usuario WHERE usuario = ?', user, (err, rows) => {
             console.log(rows);
-            res.render("usuarios_edit", {
+            res.render('usuarios_edit', {
                 data: rows[0],
             });
         });
@@ -48,17 +57,13 @@ controller.edit = (req, res) => {
 
 controller.update = (req, res) => {
     let { user } = req.params;
-    let usuarioData = {
-        contrasena: req.body.contrasena,
-        estado: req.body.estado,
-    };
 
     req.getConnection((err, conn) => {
         if (err) res.json(err);
 
-        conn.query("UPDATE usuario SET ? WHERE usuario = ?", [usuarioData, user], (err, rows) => {
+        conn.query('UPDATE usuario SET ? WHERE usuario = ?', [req.body, user], (err, rows) => {
             console.log(rows);
-            res.redirect("/Usuarios/");
+            res.redirect('/Usuarios/');
         });
     });
 };
@@ -71,7 +76,7 @@ controller.delete = (req, res) => {
 
         conn.query('UPDATE usuario SET estado = "F" WHERE usuario = ?', user, (err, rows) => {
             console.log(rows);
-            res.redirect("/Usuarios/");
+            res.redirect('/Usuarios/');
         });
     });
 };

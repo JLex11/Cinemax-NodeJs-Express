@@ -4,6 +4,7 @@ const router = express.Router();
 const generosController = require('../controllers/generosController');
 
 router.get('/', generosController.listAll);
+router.get('/:idgenero', generosController.listOne);
 
 router.post('/add', generosController.save);
 

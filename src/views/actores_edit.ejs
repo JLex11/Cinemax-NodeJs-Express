@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+    <%- include('./partials/_header.ejs') %>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card-body">
+                    <form action="/Peliculas/update/<%= data.idactor %>" method="post" enctype="multipart/form-data">
+                        <div class="form-group mt-2">
+                            <input type="text" readonly name="idactor" value="<%= data.idactor %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="text" name="nombre" value="<%= data.nombre %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="date" name="fechanacimiento" value="<%= data.fechanacimiento %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="text" name="descriptcion" value="<%= data.descriptcion %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="file" name="foto" value="<%= data.foto %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="text" name="estado" value="<%= data.estado %>" class="form-control">
+                        </div>
+                        <input type="submit" value="Update actor" class="btn btn-outline-primary mt-3">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('./partials/_footer.ejs') %>
+</body>
+</html>

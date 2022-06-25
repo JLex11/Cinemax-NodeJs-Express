@@ -1,14 +1,14 @@
-const { connect } = require("../routes/peliculas");
-const utilFunctions = require("../utils/utilFunctions");
+/* const connect = require('../routes/peliculas'); */
+/* const utilFunctions = require('../utils/utilFunctions'); */
 
 const controller = {};
 
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM pelicula WHERE estado = "T"', (err, rows) => {
-            if (err) res.json(err);
+            if (err) throw err;
 
-            res.render("peliculas", {
+            res.render('peliculas', {
                 data: rows,
             });
         });
@@ -16,29 +16,28 @@ controller.listAll = (req, res) => {
 };
 
 controller.listOne = (req, res) => {
-    res.send("One movie show");
+    let { idpelicula } = req.params;
+
+    req.getConnection((err, conn) => {
+        conn.query('SELECT * FROM pelicula WHERE idpelicula = ? estado = "T"', idpelicula, (err, rows) => {
+            if (err) throw err;
+
+            res.render('peliculas', {
+                data: rows,
+            });
+        });
+    });
 };
 
 controller.save = (req, res) => {
-    console.log("req.file", req.file);
-    let peliculaData = {
-        titulooriginal: utilFunctions.capitalize(req.body.titulooriginal),
-        titulolatino: utilFunctions.capitalize(req.body.titulooriginal),
-        foto: "/src/files/peliculas/" + req.file.filename,
-        idtipo: req.body.idtipo,
-        idpais: req.body.idpais,
-        lanzamiento: req.body.lanzamiento,
-        duracion: req.body.duracion,
-        resena: utilFunctions.capitalize(req.body.resena),
-        estado: utilFunctions.capitalize(req.body.estado),
-    };
+    req.body.foto = '/public/images/peliculas/' + req.file.filename;
 
     req.getConnection((err, conn) => {
-        if (err) res.json(err);
+        if (err) throw err;
 
-        conn.query("INSERT INTO pelicula SET ?", peliculaData, (err, rows) => {
+        conn.query('INSERT INTO pelicula SET ?', req.body, (err, rows) => {
             console.log(rows);
-            res.redirect("/Peliculas/");
+            res.redirect('/Peliculas/');
         });
     });
 };
@@ -47,38 +46,28 @@ controller.edit = (req, res) => {
     let { idpelicula } = req.params;
 
     req.getConnection((err, conn) => {
-        if (err) res.json(err);
+        if (err) throw err;
 
-        conn.query("SELECT * FROM pelicula WHERE idpelicula = ?", idpelicula, (err, rows) => {
+        conn.query('SELECT * FROM pelicula WHERE idpelicula = ?', idpelicula, (err, rows) => {
             console.log(rows[0]);
-            res.render("peliculas_edit", {
+            /* res.render("peliculas_edit", {
                 data: rows[0],
-            });
+            }); */
+            res.json(rows);
         });
     });
 };
 
-controller.update = (req, file, res) => {
-    console.log(file);
+controller.update = (req, res) => {
     let { idpelicula } = req.params;
-    let peliculaData = {
-        titulooriginal: utilFunctions.capitalize(req.body.titulooriginal),
-        titulolatino: utilFunctions.capitalize(req.body.titulooriginal),
-        foto: "/src/files/peliculas/" + req.file.filename,
-        idtipo: req.body.idtipo,
-        idpais: req.body.idpais,
-        lanzamiento: req.body.lanzamiento,
-        duracion: req.body.duracion,
-        resena: utilFunctions.capitalize(req.body.resena),
-        estado: utilFunctions.capitalize(req.body.estado),
-    };
+    req.body.foto = '/public/images/peliculas/' + req.file.filename;
 
     req.getConnection((err, conn) => {
-        if (err) res.json(err);
+        if (err) throw err;
 
-        conn.query("UPDATE pelicula SET ? WHERE idpelicula = ?", [peliculaData, idpelicula], (err, rows) => {
+        conn.query('UPDATE pelicula SET ? WHERE idpelicula = ?', [req.body, idpelicula], (err, rows) => {
             console.log(rows);
-            res.redirect("/Peliculas/");
+            res.redirect('/Peliculas/');
         });
     });
 };
@@ -87,11 +76,11 @@ controller.delete = (req, res) => {
     let { idpelicula } = req.params;
 
     req.getConnection((err, conn) => {
-        if (err) res.json(err);
+        if (err) throw err;
 
         conn.query('UPDATE pelicula SET estado = "F" WHERE idpelicula = ?', idpelicula, (err, rows) => {
             console.log(rows);
-            res.redirect("/Peliculas/");
+            res.redirect('/Peliculas/');
         });
     });
 };

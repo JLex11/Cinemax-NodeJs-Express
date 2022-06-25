@@ -1,4 +1,4 @@
-const { connect } = require("../routes/generos");
+/* const { connect } = require("../routes/generos"); */
 
 const controller = {};
 
@@ -7,7 +7,7 @@ controller.listAll = (req, res) => {
         conn.query('SELECT * FROM genero WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
-            res.render("generos", {
+            res.render('generos', {
                 data: rows,
             });
         });
@@ -15,18 +15,27 @@ controller.listAll = (req, res) => {
 };
 
 controller.listOne = (req, res) => {
-    res.send("One gender show");
+    let { idgenero } = req.params;
+
+    req.getConnection((err, conn) => {
+        conn.query('SELECT * FROM genero WHERE idgenero = ? estado = "T"', idgenero, (err, rows) => {
+            if (err) res.json(err);
+
+            res.render('generos', {
+                data: rows,
+            });
+        });
+    });
 };
 
 controller.save = (req, res) => {
-    let generoData = req.body;
-
     req.getConnection((err, conn) => {
         if (err) res.json(err);
 
-        conn.query("INSERT INTO genero SET ?", generoData, (err, rows) => {
+        conn.query('INSERT INTO genero SET ?', req.body, (err, rows) => {
+            if (err) throw err;
             console.log(rows);
-            res.redirect("/Generos/");
+            res.redirect('/Generos/');
         });
     });
 };
@@ -37,9 +46,9 @@ controller.edit = (req, res) => {
     req.getConnection((err, conn) => {
         if (err) res.json(err);
 
-        conn.query("SELECT * FROM genero WHERE idgenero = ?", idgenero, (err, rows) => {
+        conn.query('SELECT * FROM genero WHERE idgenero = ?', idgenero, (err, rows) => {
             console.log(rows);
-            res.render("generos_edit", {
+            res.render('generos_edit', {
                 data: rows[0],
             });
         });
@@ -48,17 +57,13 @@ controller.edit = (req, res) => {
 
 controller.update = (req, res) => {
     let { idgenero } = req.params;
-    let generoData = {
-        nombre: req.body.nombre,
-        estado: req.body.estado,
-    };
 
     req.getConnection((err, conn) => {
         if (err) res.json(err);
 
-        conn.query("UPDATE genero SET ? WHERE idgenero = ?", [generoData, idgenero], (err, rows) => {
+        conn.query('UPDATE genero SET ? WHERE idgenero = ?', [req.body, idgenero], (err, rows) => {
             console.log(rows);
-            res.redirect("/Generos/");
+            res.redirect('/Generos/');
         });
     });
 };
@@ -71,7 +76,7 @@ controller.delete = (req, res) => {
 
         conn.query('UPDATE genero SET estado = "F" WHERE idgenero = ?', idgenero, (err, rows) => {
             console.log(rows);
-            res.redirect("/Generos/");
+            res.redirect('/Generos/');
         });
     });
 };

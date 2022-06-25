@@ -4,6 +4,7 @@ const router = express.Router();
 const usuariosController = require('../controllers/usuariosController');
 
 router.get('/', usuariosController.listAll);
+router.get('/:user', usuariosController.listOne);
 
 router.post('/add', usuariosController.save);
 
