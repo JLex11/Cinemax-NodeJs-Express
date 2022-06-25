@@ -1,4 +1,5 @@
 /* const { connect } = require("../routes/directores"); */
+const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
 
@@ -33,6 +34,9 @@ controller.listOne = (req, res) => {
 };
 
 controller.save = (req, res) => {
+    for (let clave in req.body) {
+        req.body[clave] = utilFunctions.capitalize(req.body[clave]);
+    }
     req.body.foto = '/public/images/directores/' + req.file.originalname;
 
     req.getConnection((err, conn) => {
@@ -62,6 +66,9 @@ controller.edit = (req, res) => {
 
 controller.update = (req, res) => {
     let { iddirector } = req.params;
+    for (let clave in req.body) {
+        req.body[clave] = utilFunctions.capitalize(req.body[clave]);
+    }
     req.body.foto = '/public/images/directores/' + req.file.originalname;
 
     req.getConnection((err, conn) => {

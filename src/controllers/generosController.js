@@ -1,4 +1,5 @@
 /* const { connect } = require("../routes/generos"); */
+const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
 
@@ -33,6 +34,9 @@ controller.listOne = (req, res) => {
 };
 
 controller.save = (req, res) => {
+    for (let clave in req.body) {
+        req.body[clave] = utilFunctions.capitalize(req.body[clave]);
+    }
     req.getConnection((err, conn) => {
         if (err) res.json(err);
 
@@ -60,6 +64,9 @@ controller.edit = (req, res) => {
 };
 
 controller.update = (req, res) => {
+    for (let clave in req.body) {
+        req.body[clave] = utilFunctions.capitalize(req.body[clave]);
+    }
     let { idgenero } = req.params;
 
     req.getConnection((err, conn) => {
