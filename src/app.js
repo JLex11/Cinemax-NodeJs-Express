@@ -1,10 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
+const myConnection = require('express-myconnection');
 const mysql = require('mysql');
 const path = require('path');
-const myConnection = require('express-myconnection');
 
 const app = express();
+
+//express settings
+app.set('port', process.env.PORT || 3000);
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+//static files
+app.use('/public', express.static(path.join(__dirname, '/public')));
 
 //importing routes
 const usuariosRoutes = require('./routes/usuarios');
@@ -14,24 +23,18 @@ const actoresRoutes = require('./routes/actores');
 const directoresRoutes = require('./routes/directores');
 const estadisticasRoutes = require('./routes/estadisticas');
 
-//express settings
-app.set('port', process.env.PORT || 3000);
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
-//static files
-app.use('/public', express.static(path.join(__dirname, '/public')));
-
 //middlewares
+app.use(cors());
 app.use(morgan('dev'));
 app.use(
     myConnection(
         mysql,
         {
-            host: 'localhost',
-            user: 'root',
-            password: '',
-            port: 3306,
-            database: 'cinemax',
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            port: process.env.MYSQL_PORT,
+            database: process.env.MYSQL_DB,
         },
         'single'
     )
@@ -59,7 +62,6 @@ app.use('*', (req, res) => {
         data: routesArr,
     });
 });
-
 
 // starting server
 app.listen(app.get('port'), () => {
