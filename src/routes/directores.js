@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const directoresController = require('../controllers/directoresController');
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'src/public/images/directores/');

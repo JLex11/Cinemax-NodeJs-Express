@@ -19,7 +19,7 @@ controller.listOne = (req, res) => {
 
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM actor WHERE idactor = ? AND estado = "T"', idactor, (err, rows) => {
-            if (err) throw err;
+            if (err) res.json(err);
 
             res.render('actores', {
                 data: rows,

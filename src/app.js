@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const mysql = require('mysql');
+const path = require('path');
 const myConnection = require('express-myconnection');
 
 const app = express();
@@ -17,6 +18,8 @@ const estadisticasRoutes = require('./routes/estadisticas');
 app.set('port', process.env.PORT || 3000);
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+//static files
+app.use('/public', express.static(path.join(__dirname, '/public')));
 
 //middlewares
 app.use(morgan('dev'));
@@ -57,8 +60,6 @@ app.use('*', (req, res) => {
     });
 });
 
-//static files
-app.use('/public', express.static(__dirname + '/public'));
 
 // starting server
 app.listen(app.get('port'), () => {

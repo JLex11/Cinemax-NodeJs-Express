@@ -5,7 +5,7 @@ const actoresController = require('../controllers/actoresController');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, '/src/public/images/actores/');
+        cb(null, 'src/public/images/actores/');
     },
     filename: (req, file, cb) => {
         cb(null, file.originalname);
