@@ -21,9 +21,15 @@ controller.listOne = (req, res) => {
         conn.query('SELECT * FROM actor WHERE idactor = ? AND estado = "T"', idactor, (err, rows) => {
             if (err) res.json(err);
 
-            res.render('actores', {
-                data: rows,
-            });
+            if (rows != '') {
+                res.render('actores', {
+                    data: rows,
+                });
+            } else {
+                res.redirect('/Actores/');
+            }
+
+            
         });
     });
 };

@@ -22,9 +22,13 @@ controller.listOne = (req, res) => {
         conn.query('SELECT * FROM usuario WHERE user = ? estado = "T"', user, (err, rows) => {
             if (err) res.json(err);
 
-            res.render('usuarios', {
-                data: rows,
-            });
+            if (rows != '') {
+                res.render('usuarios', {
+                    data: rows,
+                });
+            } else {
+                res.redirect('/Usuarios/');
+            }
         });
     });
 };

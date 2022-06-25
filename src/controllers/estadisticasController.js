@@ -22,9 +22,13 @@ controller.listOne = (req, res) => {
         conn.query('SELECT * FROM estadisticas WHERE idestadisticas = ? estado = "T"', idestadisticas, (err, rows) => {
             if (err) res.json(err);
 
-            res.render('estadisticas', {
-                data: rows,
-            });
+            if (rows != '') {
+                res.render('estadisticas', {
+                    data: rows,
+                });
+            } else {
+                res.redirect('/Estadisticas/');
+            }
         });
     });
 };

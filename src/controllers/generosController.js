@@ -21,9 +21,13 @@ controller.listOne = (req, res) => {
         conn.query('SELECT * FROM genero WHERE idgenero = ? estado = "T"', idgenero, (err, rows) => {
             if (err) res.json(err);
 
-            res.render('generos', {
-                data: rows,
-            });
+            if (rows != '') {
+                res.render('generos', {
+                    data: rows,
+                });
+            } else {
+                res.redirect('/Generos/');
+            }
         });
     });
 };

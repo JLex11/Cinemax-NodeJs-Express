@@ -21,9 +21,13 @@ controller.listOne = (req, res) => {
         conn.query('SELECT * FROM director WHERE iddirector = ? AND estado = "T"', iddirector, (err, rows) => {
             if (err) res.json(err);
 
-            res.render('directores', {
-                data: rows,
-            });
+            if (rows != '') {
+                res.render('directores', {
+                    data: rows,
+                });
+            } else {
+                res.redirect('/Directores/');
+            }
         });
     });
 };
