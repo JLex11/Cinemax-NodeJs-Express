@@ -8,6 +8,7 @@ controller.listAll = (req, res) => {
         conn.query('SELECT * FROM actor WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
+            console.log(rows);
             res.render('actores', {
                 data: rows,
             });
@@ -33,7 +34,8 @@ controller.listOne = (req, res) => {
     });
 };
 
-controller.save = (req, res) => {
+controller.save = async (req, res) => {
+    console.log(req.file);
     for (let clave in req.body) {
         req.body[clave] = utilFunctions.capitalize(req.body[clave]);
     }
@@ -57,7 +59,7 @@ controller.edit = (req, res) => {
 
         conn.query('SELECT * FROM actor WHERE idactor = ?', idactor, (err, rows) => {
             console.log(rows);
-            res.render('actor_edit', {
+            res.render('actores_edit', {
                 data: rows[0],
             });
         });
