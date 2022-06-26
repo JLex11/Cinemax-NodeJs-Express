@@ -1,5 +1,3 @@
-/* const { connect } = require("../routes/estadisticas"); */
-
 const controller = {};
 
 controller.listAll = (req, res) => {
@@ -7,10 +5,9 @@ controller.listAll = (req, res) => {
         conn.query('SELECT * FROM estadisticas WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
-            /* res.render("estadisticas", {
+            res.render('estadisticas', {
                 data: rows,
-            }); */
-            res.json(rows);
+            });
         });
     });
 };

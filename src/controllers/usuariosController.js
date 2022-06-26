@@ -1,6 +1,3 @@
-/* const { json } = require('express');
-const { connect } = require('../routes/usuarios'); */
-
 const controller = {};
 
 controller.listAll = (req, res) => {

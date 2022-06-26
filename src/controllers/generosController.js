@@ -1,4 +1,3 @@
-/* const { connect } = require("../routes/generos"); */
 const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};

@@ -1,4 +1,3 @@
-/* const connect = require('../routes/peliculas'); */
 const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
