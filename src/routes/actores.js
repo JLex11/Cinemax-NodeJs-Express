@@ -13,6 +13,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+router.get('/describe', actoresController.describe);
+
 router.get('/', actoresController.listAll);
 router.get('/:idactor', actoresController.listOne);
 

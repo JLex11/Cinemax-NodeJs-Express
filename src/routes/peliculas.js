@@ -13,6 +13,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+router.get('/describe', peliculasController.describe);
+
 router.get('/', peliculasController.listAll);
 router.get('/:idpelicula', peliculasController.listOne);
 

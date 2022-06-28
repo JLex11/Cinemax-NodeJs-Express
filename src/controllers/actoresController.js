@@ -2,15 +2,20 @@ const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
 
+controller.describe = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('DESCRIBE actor', (err, rows) => {
+            if (err) res.json(err);
+            res.json(rows);
+        });
+    });
+};
+
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM actor WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
-
-            console.log(rows);
-            res.render('actores', {
-                data: rows,
-            });
+            res.json(rows);
         });
     });
 };
@@ -23,9 +28,7 @@ controller.listOne = (req, res) => {
             if (err) res.json(err);
 
             if (rows != '') {
-                res.render('actores', {
-                    data: rows,
-                });
+                res.json(rows);
             } else {
                 res.redirect('/Actores/');
             }
@@ -58,9 +61,7 @@ controller.edit = (req, res) => {
 
         conn.query('SELECT * FROM actor WHERE idactor = ?', idactor, (err, rows) => {
             console.log(rows);
-            res.render('actores_edit', {
-                data: rows[0],
-            });
+            res.json(rows);
         });
     });
 };

@@ -3,6 +3,8 @@ const router = express.Router();
 
 const estadisticasController = require('../controllers/estadisticasController');
 
+router.get('/describe', estadisticasController.describe);
+
 router.get('/', estadisticasController.listAll);
 router.get('/:idestadisticas', estadisticasController.listOne);
 

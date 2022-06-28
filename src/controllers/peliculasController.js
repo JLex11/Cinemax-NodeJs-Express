@@ -2,14 +2,21 @@ const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
 
+controller.describe = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('DESCRIBE pelicula', (err, rows) => {
+            if (err) res.json(err);
+            res.json(rows);
+        });
+    });
+};
+
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM pelicula WHERE estado = "T"', (err, rows) => {
             if (err) throw err;
 
-            res.render('peliculas', {
-                data: rows,
-            });
+            res.json(rows);
         });
     });
 };
@@ -18,13 +25,11 @@ controller.listOne = (req, res) => {
     let { idpelicula } = req.params;
 
     req.getConnection((err, conn) => {
-        conn.query('SELECT * FROM pelicula WHERE idpelicula = ? estado = "T"', idpelicula, (err, rows) => {
+        conn.query('SELECT * FROM pelicula WHERE idpelicula = ? AND estado = "T"', idpelicula, (err, rows) => {
             if (err) throw err;
 
             if (rows != '') {
-                res.render('peliculas', {
-                    data: rows,
-                });
+                res.json(rows);
             } else {
                 res.redirect('/Peliculas/');
             }
@@ -56,9 +61,6 @@ controller.edit = (req, res) => {
 
         conn.query('SELECT * FROM pelicula WHERE idpelicula = ?', idpelicula, (err, rows) => {
             console.log(rows[0]);
-            /* res.render("peliculas_edit", {
-                data: rows[0],
-            }); */
             res.json(rows);
         });
     });

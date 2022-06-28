@@ -3,6 +3,8 @@ const router = express.Router();
 
 const generosController = require('../controllers/generosController');
 
+router.get('/describe', generosController.describe);
+
 router.get('/', generosController.listAll);
 router.get('/:idgenero', generosController.listOne);
 

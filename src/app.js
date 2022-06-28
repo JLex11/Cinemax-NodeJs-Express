@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const morgan = require('morgan');
 const cors = require('cors');
+const compression = require('compression');
+const morgan = require('morgan');
 const myConnection = require('express-myconnection');
 const mysql = require('mysql');
 const path = require('path');
@@ -11,7 +12,7 @@ const app = express();
 //express settings
 app.set('port', process.env.PORT || 3000);
 app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
+app.set('views', path.join(__dirname, '/views'));
 //static files
 app.use('/public', express.static(path.join(__dirname, '/public')));
 
@@ -25,6 +26,7 @@ const estadisticasRoutes = require('./routes/estadisticas');
 
 //middlewares
 app.use(cors());
+app.use(compression());
 app.use(morgan('dev'));
 app.use(
     myConnection(
@@ -35,6 +37,7 @@ app.use(
             password: process.env.MYSQL_PASSWORD,
             port: process.env.MYSQL_PORT,
             database: process.env.MYSQL_DB,
+            dateStrings: true
         },
         'single'
     )
@@ -48,8 +51,13 @@ app.use('/Peliculas/', peliculasRoutes);
 app.use('/Actores/', actoresRoutes);
 app.use('/Directores/', directoresRoutes);
 app.use('/Estadisticas/', estadisticasRoutes);
-app.use('*', (req, res) => {
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/view/cinemaxAdmin.html'));
+});
+app.get('*', (req, res) => {
     const routesArr = {
+        inicio: '/public/view/cinemaxAdmin.html',
         usuarios: '/Usuarios/',
         generos: '/Generos/',
         peliculas: '/Peliculas/',

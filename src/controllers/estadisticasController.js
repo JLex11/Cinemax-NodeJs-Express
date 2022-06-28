@@ -1,13 +1,20 @@
 const controller = {};
 
+controller.describe = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('DESCRIBE estadisticas', (err, rows) => {
+            if (err) res.json(err);
+            res.json(rows);
+        });
+    });
+};
+
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM estadisticas WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
-            res.render('estadisticas', {
-                data: rows,
-            });
+            res.json(rows);
         });
     });
 };
@@ -20,9 +27,7 @@ controller.listOne = (req, res) => {
             if (err) res.json(err);
 
             if (rows != '') {
-                res.render('estadisticas', {
-                    data: rows,
-                });
+                res.json(rows);
             } else {
                 res.redirect('/Estadisticas/');
             }
@@ -50,9 +55,7 @@ controller.edit = (req, res) => {
 
         conn.query('SELECT * FROM estadisticas WHERE idestadisticas = ?', idestadisticas, (err, rows) => {
             console.log(rows);
-            res.render('estadisticas_edit', {
-                data: rows[0],
-            });
+            res.json(rows);
         });
     });
 };

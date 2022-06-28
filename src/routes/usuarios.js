@@ -3,6 +3,8 @@ const router = express.Router();
 
 const usuariosController = require('../controllers/usuariosController');
 
+router.get('/describe', usuariosController.describe);
+
 router.get('/', usuariosController.listAll);
 router.get('/:user', usuariosController.listOne);
 

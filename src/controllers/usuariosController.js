@@ -1,13 +1,20 @@
 const controller = {};
 
+controller.describe = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('DESCRIBE usuario', (err, rows) => {
+            if (err) res.json(err);
+            res.json(rows);
+        });
+    });
+};
+
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM usuario WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
-            res.render('usuarios', {
-                data: rows,
-            });
+            res.json(rows);
         });
     });
 };
@@ -20,9 +27,7 @@ controller.listOne = (req, res) => {
             if (err) res.json(err);
 
             if (rows != '') {
-                res.render('usuarios', {
-                    data: rows,
-                });
+                res.json(rows);
             } else {
                 res.redirect('/Usuarios/');
             }
@@ -49,9 +54,7 @@ controller.edit = (req, res) => {
 
         conn.query('SELECT * FROM usuario WHERE usuario = ?', user, (err, rows) => {
             console.log(rows);
-            res.render('usuarios_edit', {
-                data: rows[0],
-            });
+            res.json(rows);
         });
     });
 };

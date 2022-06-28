@@ -2,14 +2,21 @@ const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
 
+controller.describe = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('DESCRIBE genero', (err, rows) => {
+            if (err) res.json(err);
+            res.json(rows);
+        });
+    });
+};
+
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM genero WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
-            res.render('generos', {
-                data: rows,
-            });
+            res.json(rows);
         });
     });
 };
@@ -22,9 +29,7 @@ controller.listOne = (req, res) => {
             if (err) res.json(err);
 
             if (rows != '') {
-                res.render('generos', {
-                    data: rows,
-                });
+                res.json(rows);
             } else {
                 res.redirect('/Generos/');
             }
@@ -55,9 +60,7 @@ controller.edit = (req, res) => {
 
         conn.query('SELECT * FROM genero WHERE idgenero = ?', idgenero, (err, rows) => {
             console.log(rows);
-            res.render('generos_edit', {
-                data: rows[0],
-            });
+            res.json(rows);
         });
     });
 };

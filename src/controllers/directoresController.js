@@ -2,14 +2,21 @@ const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
 
+controller.describe = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('DESCRIBE director', (err, rows) => {
+            if (err) res.json(err);
+            res.json(rows);
+        });
+    });
+};
+
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
         conn.query('SELECT * FROM director WHERE estado = "T"', (err, rows) => {
             if (err) res.json(err);
 
-            res.render('directores', {
-                data: rows,
-            });
+            res.json(rows);
         });
     });
 };
@@ -22,9 +29,7 @@ controller.listOne = (req, res) => {
             if (err) res.json(err);
 
             if (rows != '') {
-                res.render('directores', {
-                    data: rows,
-                });
+                res.json(rows);
             } else {
                 res.redirect('/Directores/');
             }
@@ -56,9 +61,7 @@ controller.edit = (req, res) => {
 
         conn.query('SELECT * FROM director WHERE iddirector = ?', iddirector, (err, rows) => {
             console.log(rows);
-            res.render('directores_edit', {
-                data: rows[0],
-            });
+            res.json(rows);
         });
     });
 };
