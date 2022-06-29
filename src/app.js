@@ -1,9 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const compression = require('compression');
 const morgan = require('morgan');
 const myConnection = require('express-myconnection');
+const compression = require('compression');
 const mysql = require('mysql');
 const path = require('path');
 
@@ -13,20 +13,19 @@ const app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
-//static files
-app.use('/public', express.static(path.join(__dirname, '/public')));
-
-//importing routes
-const usuariosRoutes = require('./routes/usuarios');
-const generosRoutes = require('./routes/generos');
-const peliculasRoutes = require('./routes/peliculas');
-const actoresRoutes = require('./routes/actores');
-const directoresRoutes = require('./routes/directores');
-const estadisticasRoutes = require('./routes/estadisticas');
 
 //middlewares
+app.use(compression({
+    level: 9,
+    threshold: 10,
+    filter: (req, res) => { 
+        if (req.headers['x-no-compression']) {
+            return false;
+        }
+        return compression.filter(req, res);
+    }
+}));
 app.use(cors());
-app.use(compression());
 app.use(morgan('dev'));
 app.use(
     myConnection(
@@ -43,6 +42,17 @@ app.use(
     )
 );
 app.use(express.urlencoded({ extended: false }));
+
+//static files
+app.use('/public', express.static(path.join(__dirname, '/public')));
+
+//importing routes
+const usuariosRoutes = require('./routes/usuarios');
+const generosRoutes = require('./routes/generos');
+const peliculasRoutes = require('./routes/peliculas');
+const actoresRoutes = require('./routes/actores');
+const directoresRoutes = require('./routes/directores');
+const estadisticasRoutes = require('./routes/estadisticas');
 
 //routes
 app.use('/Usuarios/', usuariosRoutes);
@@ -74,5 +84,5 @@ app.get('*', (req, res) => {
 // starting server
 app.listen(app.get('port'), () => {
     console.log('-------------------------------------');
-    console.log(`Server runnig on PORT ${app.get('port')}`);
+    console.log(`🚀Server runnig on PORT ${app.get('port')}🚀`);
 });

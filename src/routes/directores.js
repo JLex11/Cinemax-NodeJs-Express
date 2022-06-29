@@ -1,7 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+
 const directoresController = require('../controllers/directoresController');
+const imagesActions = require('../utils/imagesActions');
+
+const thumbail = imagesActions.thumbail({ route: '/public/thumbails/directores/' });
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -16,13 +20,13 @@ const upload = multer({ storage: storage });
 router.get('/describe', directoresController.describe);
 
 router.get('/', directoresController.listAll);
-router.get('/:iddirector', directoresController.listOne);
+router.get('/:id_director', directoresController.listOne);
 
-router.post('/add', upload.single('foto'), directoresController.save);
+router.post('/add', upload.single('foto'), thumbail, directoresController.save);
 
-router.get('/delete/:iddirector', directoresController.delete);
+router.get('/delete/:id_director', directoresController.delete);
 
-router.get('/update/:iddirector', directoresController.edit);
-router.post('/update/:iddirector', upload.single('foto'), directoresController.update);
+router.get('/update/:id_director', directoresController.edit);
+router.post('/update/:id_director', upload.single('foto'), thumbail, directoresController.update);
 
 module.exports = router;

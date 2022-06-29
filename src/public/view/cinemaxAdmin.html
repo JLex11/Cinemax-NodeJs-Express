@@ -20,6 +20,7 @@
         <!-- ----------------- Fonts ----------------- -->
         <link href="https://fonts.googleapis.com" />
         <link href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap">
         <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/public/sw.js');</script> 
         <title>Cinemax | Administrador</title>
     </head>
@@ -214,17 +215,5 @@
         <script src="/public/Js/datatable.js" type="text/javascript"></script>
         <script src="/public/Js/Admin/main.js" type="text/javascript"></script>
         <script src="/public/Js/chart.js" type="text/javascript" rel="prefer"></script>
-        <script type="text/javascript">
-            if(document.createStyleSheet) {
-                document.createStyleSheet('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap');
-            }
-            else {
-                var styles = "@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap');";
-                var newSS=document.createElement('link');
-                newSS.rel='stylesheet';
-                newSS.href='data:text/css,'+escape(styles);
-                document.getElementsByTagName("head")[0].appendChild(newSS);
-            }
-        </script>
     </body>
 </html>

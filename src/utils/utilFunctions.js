@@ -1,6 +1,6 @@
 const controller = {};
 
-controller.capitalize = (string) => {
+controller.capitalize = string => {
     return string[0].toUpperCase() + string.slice(1);
 };
 

@@ -3,6 +3,7 @@ const urlToCache = [
     './',
     './*',
     './manifest.webmanifest',
+    './View/cinemaxAdmin.html?utm_source=web_app_manifest',
     './View/cinemaxAdmin.html',
     './Css/Admin/estilos.css',
     './Images/Home.webp',

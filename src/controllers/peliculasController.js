@@ -13,11 +13,32 @@ controller.describe = (req, res) => {
 
 controller.listAll = (req, res) => {
     req.getConnection((err, conn) => {
-        conn.query('SELECT * FROM pelicula WHERE estado = "T"', (err, rows) => {
-            if (err) throw err;
+        conn.query(
+            'SELECT pelicula.id_pelicula,\n'
+            + 'pelicula.titulo_original,\n'
+            + 'pelicula.titulo_latino,\n'
+            + 'pelicula.foto,\n'
+            + 'pelicula.id_tipo,\n'
+            + 'pelicula.id_pais,\n'
+            + 'pelicula.lanzamiento,\n'
+            + 'pelicula.duracion,\n'
+            + 'pelicula.resena,\n'
+            + 'pelicula.estado,\n'
+            + 'estadisticas.cant_vistas,\n'
+            + 'estadisticas.cant_likes,\n'
+            + 'estadisticas.cant_comentarios\n'
+            + 'FROM   pelicula\n'
+            + 'LEFT JOIN estadisticaspelicula\n'
+            + 'ON pelicula.id_pelicula = estadisticaspelicula.id_pelicula\n'
+            + 'LEFT JOIN estadisticas\n'
+            + 'ON estadisticaspelicula.id_estadisticas =\n'
+            + 'estadisticas.id_estadisticas;',
+            (err, rows) => {
+                if (err) throw err;
 
-            res.json(rows);
-        });
+                res.json(rows);
+            }
+        );
     });
 };
 
@@ -41,7 +62,7 @@ controller.save = (req, res) => {
     for (let clave in req.body) {
         req.body[clave] = utilFunctions.capitalize(req.body[clave]);
     }
-    req.body.foto = '/public/images/peliculas/' + req.file.filename;
+    req.body.foto = '/public/fotos/peliculas/' + req.file.filename;
 
     req.getConnection((err, conn) => {
         if (err) throw err;
@@ -71,7 +92,7 @@ controller.update = (req, res) => {
     for (let clave in req.body) {
         req.body[clave] = utilFunctions.capitalize(req.body[clave]);
     }
-    req.body.foto = '/public/images/peliculas/' + req.file.filename;
+    req.body.foto = '/public/fotos/peliculas/' + req.file.filename;
 
     req.getConnection((err, conn) => {
         if (err) throw err;

@@ -8,26 +8,14 @@ let loader = document.getElementById('loader');
 let loader_users = document.getElementById('loader_users');
 /* let prevElementClicked = 0; */
 let posElementClicked = 0;
-let firstSession = false;
 
 addEventListener('load', () => {
-    checkFirstTime();
     navInSections();
     header();
     homeHeaderCards();
     crearGrafico();
     makeScrollableElements();
 });
-
-function checkFirstTime() {
-    if (localStorage.getItem('firstSession')) {
-        firstSession = false;
-    } else {
-        firstSession = true;
-        localStorage.setItem('firstSession', firstSession);
-        navBar.classList.add('navFirst');
-    }
-}
 
 function navInSections() {
     let fEjecutadaData = false;
@@ -56,13 +44,10 @@ function navInSections() {
             moverTargetSpan(posElementClicked);
             consultasADb(posElementClicked);
         }
-    });
+    }, {passive: true});
 
-    navBar.addEventListener('mouseover', () => {
+    navBar.addEventListener('mouseenter', () => {
         ocultarNavBar(false);
-        if (firstSession == true) {
-            navBar.classList.remove('navFirst');
-        }
 
         setTimeout(() => {
             navBar.addEventListener('mouseleave', () => {
@@ -85,9 +70,9 @@ function navInSections() {
                 posElementClicked = auxEleClicked;
             }
         }
-    });
+    }, {passive: true});
 
-    new ResizeObserver((e) => {
+    new ResizeObserver(() => {
         mainSections.forEach((section, index) => {
             mainSectionsX[index] = section.offsetLeft;
         });
@@ -148,11 +133,11 @@ function navInSections() {
         if (posicion == 2) {
             if (!fEjecutadaData) {
                 loader.classList.add('loader');
-                consultarPeliculas();
                 consultarActores();
                 consultarDirectores();
-                consultarGeneros();
                 consultarEstadisticas();
+                consultarGeneros();
+                consultarPeliculas();
                 //se desactiva el loader desde una de las funciones
                 fEjecutadaData = true;
             }
@@ -169,13 +154,13 @@ function header() {
         } else {
             buttonUp.classList.remove('button_up_active');
         }
-    });
+    }, {passive: true});
 
     buttonUp.addEventListener('click', () => {
         window.scrollTo({
             top: 0,
         });
-    });
+    }, {passive: true});
 }
 
 function crearGrafico() {
@@ -278,13 +263,13 @@ function isScrollableElement(elementParent, overflowElement) {
         <span class="material-icons-round">navigate_before</span>`;
     buttonLeft.addEventListener('click', () => {
         elementParent.scrollLeft -= 300;
-    });
+    }, {passive: true});
 
     buttonRight.innerHTML = `
         <span class="material-icons-round">navigate_next</span>`;
     buttonRight.addEventListener('click', () => {
         elementParent.scrollLeft += 300;
-    });
+    }, {passive: true});
 
     elementParent.parentNode.append(buttonLeft, buttonRight);
 
@@ -310,7 +295,7 @@ function isScrollableElement(elementParent, overflowElement) {
 
     elementParent.addEventListener('scroll', () => {
         isVisibilyScrollButtons();
-    });
+    }, {passive: true});
 
     addEventListener('resize', () => {
         wOverflowElement = overflowElement.offsetWidth;
@@ -318,7 +303,7 @@ function isScrollableElement(elementParent, overflowElement) {
         minRange = overflowElement.offsetWidth - overflowElement.offsetWidth * 0.01;
         maxRange = overflowElement.offsetWidth + overflowElement.offsetWidth * 0.01;
         isVisibilyScrollButtons();
-    });
+    }, {passive: true});
 
     new ResizeObserver(() => {
         wOverflowElement = overflowElement.offsetWidth;
@@ -335,6 +320,7 @@ class HeaderCards {
     headerItem;
     spanMaterialIcons;
     containerBody;
+    tableAssoc;
     id;
     icon;
     bodyElements;
@@ -401,12 +387,12 @@ async function peticionFetch(parametros, url) {
 /* -------------Consultas a db-------------- */
 //variables
 const requestRoutes = {
-    usuario: '/Usuarios/',
-    genero: '/Generos/',
-    pelicula: '/Peliculas/',
     actor: '/Actores/',
     director: '/Directores/',
-    estadisticas: '/Estadisticas/'
+    estadisticas: '/Estadisticas/',
+    genero: '/Generos/',
+    pelicula: '/Peliculas/',
+    usuario: '/Usuarios/',
 };
 
 // !Consultar peliculas
@@ -418,23 +404,20 @@ async function consultarPeliculas() {
         requestRoutes: requestRoutes
     };
 
-    /* let contentsCard = {
+    let tPeliculas = new DataTable('.data', contents);
+    let tableTrs = await tPeliculas.tableRequest();
+    let contentsCard = {
         id: 'Peliculas',
         icon: 'movie',
         bodyElements: [
             {
-                number: Object.getOwnPropertyNames(await contents.trs).length - 1,
+                number: tableTrs.length,
                 name: 'Peliculas',
-            },
-            {
-                number: Object.getOwnPropertyNames(await contents.trs).length - 1,
-                name: 'Nuevas',
             },
         ],
     };
 
-    new HeaderCards('chi2', contentsCard); */
-    let tPeliculas = new DataTable('.data', contents);
+    new HeaderCards('chi2', contentsCard);
     loader.classList.remove('loader');
 }
 
@@ -447,19 +430,20 @@ async function consultarEstadisticas() {
         requestRoutes: requestRoutes,
     };
 
-    /* let contentsCard = {
+    let tEstadisticas = new DataTable('.data', contents);
+    let tableTrs = await tEstadisticas.tableRequest();
+    let contentsCard = {
         id: 'Estadisticas',
         icon: 'bar_chart',
         bodyElements: [
             {
-                number: Object.getOwnPropertyNames(await contents.trs).length - 1,
+                number: tableTrs.length,
                 name: 'Estadisticas',
             },
         ],
     };
 
-    new HeaderCards('chi2', contentsCard); */
-    let tEstadisticas = new DataTable('.data', contents);
+    new HeaderCards('chi2', contentsCard);
     loader.classList.remove('loader');
 }
 
@@ -472,19 +456,20 @@ async function consultarActores() {
         requestRoutes: requestRoutes,
     };
 
-    /* let contentsCard = {
+    let tActores = new DataTable('.data', contents);
+    let tableTrs = await tActores.tableRequest();
+    let contentsCard = {
         id: 'Actores',
         icon: 'groups',
         bodyElements: [
             {
-                number: Object.getOwnPropertyNames(await contents.trs).length - 1,
+                number: tableTrs.length,
                 name: 'Actores',
             },
         ],
     };
 
-    new HeaderCards('chi2', contentsCard); */
-    let tActores = new DataTable('.data', contents);
+    new HeaderCards('chi2', contentsCard);
     loader.classList.remove('loader');
 }
 
@@ -497,19 +482,20 @@ async function consultarDirectores() {
         requestRoutes: requestRoutes,
     };
 
-    /* let contentsCard = {
+    let tDirectores = new DataTable('.data', contents);
+    let tableTrs = await tDirectores.tableRequest();
+    let contentsCard = {
         id: 'Directores',
         icon: 'people',
         bodyElements: [
             {
-                number: Object.getOwnPropertyNames(await contents.trs).length - 1,
+                number: tableTrs.length,
                 name: 'Directores',
             },
         ],
     };
 
-    new HeaderCards('chi2', contentsCard); */
-    let tDirectores = new DataTable('.data', contents);
+    new HeaderCards('chi2', contentsCard);
     loader.classList.remove('loader');
 }
 
@@ -522,19 +508,20 @@ async function consultarGeneros() {
         requestRoutes: requestRoutes,
     };
 
-    /* let contentsCard = {
+    let tGeneros = new DataTable('.data', contents);
+    let tableTrs = await tGeneros.tableRequest();
+    let contentsCard = {
         id: 'Generos',
         icon: 'theaters',
         bodyElements: [
             {
-                number: Object.getOwnPropertyNames(await contents.trs).length - 1,
+                number: tableTrs.length,
                 name: 'Generos',
             },
         ],
     };
 
-    new HeaderCards('chi2', contentsCard); */
-    let tGeneros = new DataTable('.data', contents);
+    new HeaderCards('chi2', contentsCard);
     loader.classList.remove('loader');
 }
 

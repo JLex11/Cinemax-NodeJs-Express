@@ -41,7 +41,7 @@ controller.save = (req, res) => {
     for (let clave in req.body) {
         req.body[clave] = utilFunctions.capitalize(req.body[clave]);
     }
-    req.body.foto = '/public/images/directores/' + req.file.originalname;
+    req.body.foto = '/public/fotos/directores/' + req.file.originalname;
 
     req.getConnection((err, conn) => {
         if (err) res.json(err);
@@ -71,7 +71,7 @@ controller.update = (req, res) => {
     for (let clave in req.body) {
         req.body[clave] = utilFunctions.capitalize(req.body[clave]);
     }
-    req.body.foto = '/public/images/directores/' + req.file.originalname;
+    req.body.foto = '/public/fotos/directores/' + req.file.originalname;
 
     req.getConnection((err, conn) => {
         if (err) res.json(err);

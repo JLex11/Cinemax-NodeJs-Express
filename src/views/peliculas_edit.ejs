@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+    <%- include('./partials/_header.ejs') %>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card-body">
+                    <form action="/Peliculas/update/<%= data.idpelicula %>" method="post" enctype="multipart/form-data">
+                        <div class="form-group mt-2">
+                            <input type="text" name="idpelicula" value="<%= data.idpelicula %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="text" name="titulooriginal" value="<%= data.titulooriginal %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="text" name="titulolatino" value="<%= data.titulolatino %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="file" name="foto" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="number" name="idtipo" value="<%= data.idtipo %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="number" name="idpais" value="<%= data.idpais %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="number" name="lanzamiento" value="<%= data.lanzamiento %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="number" name="duracion" value="<%= data.duracion %>" class="form-control">
+                        </div>
+                        <div class="form-group mt-2">
+                            <input type="text" name="resena" value="<%= data.resena %>" class="form-control">
+                        </div>
+                        <input type="hidden" name="estado" value="T">
+                        <input type="submit" value="Add movie" class="btn btn-outline-primary mt-3">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('./partials/_footer.ejs') %>
+</body>
+</html>

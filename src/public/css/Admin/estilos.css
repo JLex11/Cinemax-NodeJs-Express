@@ -141,7 +141,7 @@ nav ul {
     justify-content: center;
 }
 
-nav ul::before, nav ul::after {
+nav ul::before {
     box-shadow: 0 3px 5px #00000052;
     content: "";
     position: absolute;
@@ -150,10 +150,10 @@ nav ul::before, nav ul::after {
     height: 5px;
     border-radius: 5px;
     background: var(--color-blue);
-    transition: width 0.3s 0.1s, top 0.1s;
+    transition: width 0.3s 0.3s, top 0.3s;
 }
 
-ul li {
+nav ul li {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -162,11 +162,11 @@ ul li {
     z-index: 1;
 }
 
-li:hover {
+nav li:hover {
     filter: brightness(0.9);
 }
 
-li.option_active {
+nav li.option_active {
     transform: scale(1.1) translateY(-5px);
     z-index: 2;
 }
@@ -242,7 +242,7 @@ main {
 
 main.section_focus_change {
     scroll-behavior: smooth;
-    transform: scale(0.90);
+    transform: scale(0.95);
     opacity: 0;
 }
 
@@ -303,13 +303,17 @@ section {
     user-select: none;
 }
 
+.section_header span.material-icons-round {
+    font-size: 28pt;
+}
+
 .section_header .button_right {
-    background: linear-gradient(to left, var(--bg) 40%, transparent);
+    background: linear-gradient(to left, var(--bg) 20%, transparent);
     padding: 0 0 0 35px;
     right: -1px;
 }
 .section_header .button_left {
-    background: linear-gradient(to right, var(--bg) 40%, transparent);
+    background: linear-gradient(to right, var(--bg) 20%, transparent);
     padding: 0 35px 0 0;
     left: -1px;
 }
@@ -821,27 +825,50 @@ div.checkboxToButton::after {
     box-shadow: 0 2px 5px #0000001b;
     border-radius: 5px;
     padding: 7px 5px;
+    z-index: 1;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+.container_pages_number input:focus-visible {
+    outline: none;
+}
+
+.container_pages_number span.material-icons-round {
+    font-size: 24pt;
+    margin-left: -5%;
+}
+.container_pages_number span.material-icons-round:hover {
+    background: rgb(0 0 0 / 12%);
+    border-radius: 0 7px 7px 0;
 }
 
 .container_pages_nav ul {
     display: flex;
-    gap: 5px;
+    gap: 4px;
 }
 
 .container_pages_nav ul li {
-    padding: 5px 10px;
+    display: flex;
+    padding: 5px 7px;
+    font-size: 11pt;
+    cursor: pointer;
+    border-radius: 7px;
 }
 
 .container_pages_nav ul li:hover {
-    background: rgb(0 0 0 / 8%);
-    border-radius: 5px;
+    background: rgb(0 0 0 / 12%);
 }
 
 .container_pages_nav ul li.actualPage_indicator {
     color: white;
     background: var(--color-blue);
     box-shadow: 0 2px 5px #00000029;
-    border-radius: 5px;
+    transform: scale(1.05) translateY(-3px);
+    padding: 5px 10px;
 }
 /* ------------ Prefer Color Scheme ----------- */
 @media (prefers-color-scheme: dark) {

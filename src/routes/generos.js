@@ -6,13 +6,13 @@ const generosController = require('../controllers/generosController');
 router.get('/describe', generosController.describe);
 
 router.get('/', generosController.listAll);
-router.get('/:idgenero', generosController.listOne);
+router.get('/:id_genero', generosController.listOne);
 
 router.post('/add', generosController.save);
 
-router.get('/delete/:idgenero', generosController.delete);
+router.get('/delete/:id_genero', generosController.delete);
 
-router.get('/update/:idgenero', generosController.edit);
-router.post('/update/:idgenero', generosController.update);
+router.get('/update/:id_genero', generosController.edit);
+router.post('/update/:id_genero', generosController.update);
 
 module.exports = router;

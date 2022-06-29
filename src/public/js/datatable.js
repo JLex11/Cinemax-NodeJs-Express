@@ -1,10 +1,13 @@
 class DataTable {
+    documentBody;
     elementParent;
     container_subsection;
+    container_subsectionY;
     container_table;
     container_buttons;
     section_subbody;
     container_section_subtitle;
+
     tableName;
     titulo;
     titleIcon;
@@ -12,19 +15,22 @@ class DataTable {
     tableFields;
     describe;
     trs;
-    indexUltElement;
-    numRowsPerPage;
-    actualPage;
-    dbParametros;
-    dbTables;
-    cantRows;
+    contNewRows;
+
     table;
     thead;
     tbody;
     container_rows_actions;
+
+    indexUltElement;
+    numRowsPerPage;
+    actualPage;
+    cantRows;
+
     ls;
 
     constructor(elementParent, contents) {
+        this.documentBody = document.querySelector('body');
         this.elementParent = document.querySelector(elementParent);
         this.tableName = contents.name;
         this.titulo = this.capitalizarString(contents.titulo);
@@ -33,31 +39,6 @@ class DataTable {
         this.nameTablesRoutes = Object.keys(requestRoutes);
 
         this.makeTable();
-    }
-
-    async makeTable() {
-        this.trs = await this.tableRequest();
-        this.describe = await this.tableRequest('', 'describe');
-        this.headers = Object.getOwnPropertyNames(this.trs[0]);
-
-        this.ls = window.localStorage;
-
-        this.container_subsection = document.createElement('div');
-        this.container_section_subtitle = document.createElement('div');
-        this.section_subbody = document.createElement('div');
-        this.container_table = document.createElement('div');
-        this.container_buttons = document.createElement('div');
-        this.container_rows_actions = document.createElement('div');
-        this.table = document.createElement('table');
-        this.thead = document.createElement('thead');
-        this.tbody = document.createElement('tbody');
-
-        this.indexUltElement = 0;
-        this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`) > 0 ? this.ls.getItem(`numRowsPerPage${this.titulo}`) : 1;
-        this.actualPage = 1;
-        this.cantRows = this.trs.length;
-
-        this.renderTable();
     }
 
     async tableRequest(table, id, method, datos) {
@@ -81,6 +62,40 @@ class DataTable {
                 return 'Ha ocurrido un error: ' + error;
             }
         }
+    }
+
+    async makeTable() {
+        this.trs = await this.tableRequest();
+        this.describe = await this.tableRequest('', 'describe');
+        this.headers = Object.getOwnPropertyNames(this.trs[0]);
+        this.headers = this.headers.map(header => {
+            return this.capitalizarString(this.replaceCharacter(header, '_', ' '));;
+        });
+
+        this.ls = window.localStorage;
+
+        this.container_subsection = document.createElement('div');
+        this.container_section_subtitle = document.createElement('div');
+        this.section_subbody = document.createElement('div');
+        this.container_table = document.createElement('div');
+        this.container_buttons = document.createElement('div');
+        this.container_rows_actions = document.createElement('div');
+        this.table = document.createElement('table');
+        this.thead = document.createElement('thead');
+        this.tbody = document.createElement('tbody');
+
+        this.contNewRows = this.ls.getItem(this.tableName + '_contNewRows') ? this.ls.getItem(this.tableName + '_contNewRows') : 0;
+
+        this.indexUltElement = 0;
+        this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`) > 0 ? this.ls.getItem(`numRowsPerPage${this.titulo}`) : 1;
+        this.actualPage = 1;
+        this.cantRows = this.trs.length;
+
+        this.container_subsectionY = new ResizeObserver(() => {
+            return this.section_subbody.offsetTop;
+        }).observe(this.documentBody);
+
+        this.renderTable();
     }
 
     renderTable() {
@@ -157,7 +172,7 @@ class DataTable {
             divBtn.innerHTML = `<span class="material-icons-round">${buttonsIcon[i]}</span>`;
             divBtn.id = buttonsId[i];
             divBtn.classList.add('btns');
-            divBtn.addEventListener('click', buttonsFunctions[i]);
+            divBtn.addEventListener('click', buttonsFunctions[i], {passive: true});
             fragment.appendChild(divBtn);
         }
         this.container_buttons.appendChild(fragment);
@@ -196,7 +211,7 @@ class DataTable {
                 spanCloseButton.textContent = 'close';
                 spanCloseButton.addEventListener('click', () => {
                     containerModal.remove();
-                });
+                }, {passive: true});
 
                 divModalActions.append(spanCloseButton);
                 return divModalActions;
@@ -225,7 +240,7 @@ class DataTable {
 
         this.headers.forEach(header => {
             let th = document.createElement('th');
-            th.textContent = this.capitalizarString(header);
+            th.textContent = header;
             dFragment.appendChild(th);
         });
         tr.appendChild(dFragment);
@@ -255,8 +270,6 @@ class DataTable {
                 let describeCont = 0;
                 for (let i in t) {
                     let td = document.createElement('td');
-                    td.setAttribute('data-label', `${this.capitalizarString(this.headers[describeCont])}`);
-
                     let describe = this.describe[describeCont] ? this.describe[describeCont] : false;
                     if (describe && describe.Field == 'foto') {
                         let ahref = document.createElement('a');
@@ -269,7 +282,7 @@ class DataTable {
                         img.addEventListener('error', () => {
                             td.innerHTML = `
                             <span class="material-icons-round" style="color: gray;">image_not_supported</span>`;
-                        });
+                        }, {passive: true});
 
                         ahref.appendChild(img);
                         td.appendChild(ahref);
@@ -311,7 +324,11 @@ class DataTable {
         inputNumRows.setAttribute('max', this.cantRows);
         inputNumRows.setAttribute('min', 1);
 
-        container_pages_number.appendChild(inputNumRows);
+        let buttonChangeRows = document.createElement('span');
+        buttonChangeRows.classList.add('material-icons-round');
+        buttonChangeRows.textContent = 'arrow_right';
+
+        container_pages_number.append(inputNumRows, buttonChangeRows);
         container_pages_number.innerHTML += `<p>de ${this.cantRows}</p>`;
         this.changeNumRowsPerPage(container_pages_number);
 
@@ -319,11 +336,11 @@ class DataTable {
         container_pages_nav.classList.add('container_pages_nav');
         container_pages_nav.innerHTML = `
             <ul>
-                ${this.actualPage > 1 ? '<li>1</li>' : ''}
-                ${this.actualPage > 3 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
-                ${this.actualPage > 2 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
+                ${this.actualPage > 2 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
+                ${this.actualPage > 1 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
                 <li class="actualPage_indicator">${this.actualPage}</li>
-                ${numPages - this.actualPage > 1 ? '<li>...</li>' : ''}
+                ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
+                ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
                 ${numPages != this.actualPage ? '<li>' + numPages + '</li>' : ''}
                 ${this.actualPage > 1 ? "<li data-type='rowRight'><span class='material-icons-round'>chevron_left</span></li>" : ''}
                 ${numPages - this.actualPage > 0 ? "<li data-type='rowLeft'><span class='material-icons-round'>chevron_right</span></li>" : ''}
@@ -337,18 +354,33 @@ class DataTable {
     changeNumRowsPerPage(inputParent) {
         if (inputParent) {
             let input = inputParent.querySelector('input');
+            let span = inputParent.querySelector('span');
+
             let regVal = /^[0-9]*[0-9]+$/;
+
             input.addEventListener('keydown', e => {
-                if (e.key == 'Enter') {
-                    this.indexUltElement = 0;
+                if (e.key == 'Enter' && regVal.test(input.value) && input.value != this.numRowsPerPage) {
                     this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
+                    this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
                     this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
                     this.renderRowActions();
                     this.renderTrs();
-                    
+
                     input.value = this.numRowsPerPage;
                 }
-            });
+            }, {passive: true});
+
+            span.addEventListener('click', () => {
+                if (regVal.test(input.value) && input.value != this.numRowsPerPage) {
+                    this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
+                    this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+                    this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+                    this.renderRowActions();
+                    this.renderTrs();
+
+                    input.value = this.numRowsPerPage;
+                }
+            }, {passive: true});
         } else {
             if (this.ls.getItem(`numRowsPerPage${this.titulo}`)) {
                 this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`);
@@ -368,7 +400,8 @@ class DataTable {
                 this.renderRowActions();
                 this.renderTrs();
             }
-        });
+        }, {passive: true});
+
         let listLi = container_pages_nav.querySelectorAll('li');
         listLi.forEach(li => {
             if (li.dataset.type) {
@@ -385,9 +418,13 @@ class DataTable {
                         this.renderRowActions();
                         this.renderTrs();
                     }
-                });
+                }, {passive: true});
             }
         });
+    }
+
+    replaceCharacter(str, char, newChar) {
+        return str.replace(char, newChar);
     }
 
     capitalizarString(string) {
@@ -418,14 +455,14 @@ class DataTable {
 
         let fragment = document.createDocumentFragment();
 
-        for (let i = 1; i < this.headers.length - 1; i++) {
+        for (let i = 1; i < this.headers.length; i++) {
             let inputAttrs = ['text', '11'];
             let disabled = false;
 
             let input = document.createElement('input');
             input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
             input.placeholder = this.headers[i] ? this.headers[i] : '';
-            
+
             if (this.describe[i]) {
                 inputAttrs = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
                 disabled = this.describe[i].Key == 'PRI' ? true : false;
@@ -448,7 +485,7 @@ class DataTable {
         saveBtn.innerHTML = '<span class="material-icons-round">send</span>';
         saveBtn.addEventListener('click', () => {
             let formData = new FormData(form);
-        });
+        }, {passive: true});
 
         containerBody.append(form, saveBtn);
         this.renderModal(containerBody);
@@ -461,7 +498,7 @@ class DataTable {
 
         let fragment = document.createDocumentFragment();
 
-        for (let i = 0; i < tdCampos.length - 1; i++) {
+        for (let i = 0; i < this.describe.length; i++) {
             let describeType = ['text', '11'];
             let disabled = false;
 
@@ -469,7 +506,7 @@ class DataTable {
             input.value = tdCampos[i + 1].textContent;
             input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
             input.placeholder = this.headers[i] ? this.headers[i] : '';
-            
+
             if (this.describe[i]) {
                 describeType = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
                 disabled = this.describe[i].Key == 'PRI' ? true : false;
@@ -492,7 +529,7 @@ class DataTable {
         saveBtn.innerHTML = '<span class="material-icons-round">send</span>';
         saveBtn.addEventListener('click', () => {
             let formData = new FormData(form);
-        });
+        }, {passive: true});
 
         containerBody.append(form, saveBtn);
         this.renderModal(containerBody);
