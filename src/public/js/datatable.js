@@ -1,133 +1,154 @@
+// eslint-disable-next-line no-unused-vars
 class DataTable {
-    documentBody;
-    elementParent;
-    container_subsection;
-    container_subsectionY;
-    container_table;
-    container_buttons;
-    section_subbody;
-    container_section_subtitle;
+  documentBody;
+  elementParent;
+  container_subsection;
+  container_subsectionY;
+  container_table;
+  container_buttons;
+  section_subbody;
+  container_section_subtitle;
 
-    tableName;
-    titulo;
-    titleIcon;
-    headers;
-    tableFields;
-    describe;
-    trs;
-    contNewRows;
+  tableName;
+  titulo;
+  titleIcon;
+  headers;
+  tableFields;
+  describe;
+  trs;
+  contNewRows;
 
-    table;
-    thead;
-    tbody;
-    container_rows_actions;
+  table;
+  thead;
+  tbody;
+  container_rows_actions;
 
-    indexUltElement;
-    numRowsPerPage;
-    actualPage;
-    cantRows;
+  indexUltElement;
+  numRowsPerPage;
+  actualPage;
+  cantRows;
 
-    ls;
+  ls;
 
-    constructor(elementParent, contents) {
-        this.documentBody = document.querySelector('body');
-        this.elementParent = document.querySelector(elementParent);
-        this.tableName = contents.name;
-        this.titulo = this.capitalizarString(contents.titulo);
-        this.titleIcon = contents.titleIcon;
-        this.requestRoutes = contents.requestRoutes;
-        this.nameTablesRoutes = Object.keys(requestRoutes);
+  constructor(elementParent, contents) {
+    this.documentBody = document.querySelector('body');
+    this.elementParent = document.querySelector(elementParent);
+    this.tableName = contents.name;
+    this.titulo = this.capitalizarString(contents.titulo);
+    this.titleIcon = contents.titleIcon;
+    this.requestRoutes = contents.requestRoutes;
+    this.nameTablesRoutes = Object.keys(this.requestRoutes);
 
-        this.makeTable();
+    this.makeTable();
+  }
+
+  async tableRequest(table, id, method, datos) {
+    table = table ? table : this.tableName;
+    let route = this.requestRoutes[table] ? this.requestRoutes[table] : this.requestRoutes[this.tableName];
+    route += id ? id : '';
+    datos = datos ? datos : {'': ''};
+
+    let requestContent = {};
+
+    if (method == 'POST') {
+      requestContent = {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(datos),
+      };
+    } else {
+      requestContent = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
     }
 
-    async tableRequest(table, id, method, datos) {
-        table = table ? table : this.tableName;
-        let route;
-        for (const key in this.requestRoutes) {
-            if (key == table) {
-                route = requestRoutes[key];
-                break;
-            }
-        }
-
-        route += id ? id : '';
-        if (route != -1) {
-            try {
-                let response = await fetch(route, {
-                    method: 'GET',
-                });
-                return await response.json();
-            } catch (error) {
-                return 'Ha ocurrido un error: ' + error;
-            }
-        }
+    try {
+      let response = await fetch(route, requestContent);
+      return await response.json();
+    } catch (error) {
+      console.log('Ha ocurrido un error: ' + error);
     }
+  }
 
-    async makeTable() {
-        this.trs = await this.tableRequest();
-        this.describe = await this.tableRequest('', 'describe');
-        this.headers = Object.getOwnPropertyNames(this.trs[0]);
-        this.headers = this.headers.map(header => {
-            return this.capitalizarString(this.replaceCharacter(header, '_', ' '));;
-        });
+  async makeTable() {
+    this.trs = await this.tableRequest();
+    this.describe = await this.tableRequest('', 'describe');
+    this.headers = Object.getOwnPropertyNames(this.trs[0]);
+    this.headers = this.headers.map(header => {
+      return this.capitalizarString(this.replaceCharacter(header, '_', ' '));
+    });
 
-        this.ls = window.localStorage;
+    this.ls = window.localStorage;
 
-        this.container_subsection = document.createElement('div');
-        this.container_section_subtitle = document.createElement('div');
-        this.section_subbody = document.createElement('div');
-        this.container_table = document.createElement('div');
-        this.container_buttons = document.createElement('div');
-        this.container_rows_actions = document.createElement('div');
-        this.table = document.createElement('table');
-        this.thead = document.createElement('thead');
-        this.tbody = document.createElement('tbody');
+    this.container_subsection = document.createElement('div');
+    this.container_section_subtitle = document.createElement('div');
+    this.section_subbody = document.createElement('div');
+    this.container_table = document.createElement('div');
+    this.container_buttons = document.createElement('div');
+    this.container_rows_actions = document.createElement('div');
+    this.table = document.createElement('table');
+    this.thead = document.createElement('thead');
+    this.tbody = document.createElement('tbody');
 
-        this.contNewRows = this.ls.getItem(this.tableName + '_contNewRows') ? this.ls.getItem(this.tableName + '_contNewRows') : 0;
+    this.contNewRows = this.ls.getItem(this.tableName + '_contNewRows') ? this.ls.getItem(this.tableName + '_contNewRows') : 0;
 
-        this.indexUltElement = 0;
-        this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`) > 0 ? this.ls.getItem(`numRowsPerPage${this.titulo}`) : 1;
-        this.actualPage = 1;
-        this.cantRows = this.trs.length;
+    this.indexUltElement = 0;
+    this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`) > 0 ? this.ls.getItem(`numRowsPerPage${this.titulo}`) : 1;
+    this.actualPage = 1;
+    this.cantRows = this.trs.length;
 
-        this.container_subsectionY = new ResizeObserver(() => {
-            return this.section_subbody.offsetTop;
-        }).observe(this.documentBody);
+    this.renderTable();
+    this.container_subsectionY = this.getSubsectionY().then((response) => {
+      console.log(response);
+      return response;
+    });
+    
+  }
+  
+  getSubsectionY() {
+    return new Promise((resolve) => {
+      new ResizeObserver(() => {
+        resolve(this.container_subsection.offsetTop);
+      });
+      resolve(this.container_subsection.offsetTop);
+    });
+  }
 
-        this.renderTable();
-    }
+  renderTable() {
+    this.renderTitleBar();
+    this.renderActionBtns();
+    this.renderHeaders();
+    this.renderTrs();
+    this.renderRowActions();
+    this.changeNumRowsPerPage();
 
-    renderTable() {
-        this.renderTitleBar();
-        this.renderActionBtns();
-        this.renderHeaders();
-        this.renderTrs();
-        this.renderRowActions();
-        this.changeNumRowsPerPage();
+    this.table.appendChild(this.thead);
+    this.table.appendChild(this.tbody);
 
-        this.table.appendChild(this.thead);
-        this.table.appendChild(this.tbody);
+    this.container_table.appendChild(this.table);
+    this.container_table.classList.add('container_table');
 
-        this.container_table.appendChild(this.table);
-        this.container_table.classList.add('container_table');
+    this.container_buttons.classList.add('container_buttons');
 
-        this.container_buttons.classList.add('container_buttons');
+    this.container_rows_actions.classList.add('container_rows_actions');
 
-        this.container_rows_actions.classList.add('container_rows_actions');
+    this.section_subbody.append(this.container_buttons, this.container_table, this.container_rows_actions);
+    this.section_subbody.classList.add('section_subbody');
 
-        this.section_subbody.append(this.container_buttons, this.container_table, this.container_rows_actions);
-        this.section_subbody.classList.add('section_subbody');
+    this.container_subsection.append(this.container_section_subtitle, this.section_subbody);
+    this.container_subsection.classList.add('container_subsection');
+    this.container_subsection.id = this.titulo;
 
-        this.container_subsection.append(this.container_section_subtitle, this.section_subbody);
-        this.container_subsection.classList.add('container_subsection');
-        this.container_subsection.id = this.titulo;
+    this.elementParent.appendChild(this.container_subsection);
+  }
 
-        this.elementParent.appendChild(this.container_subsection);
-    }
-
-    renderTitleBar() {
-        this.container_section_subtitle.innerHTML = `
+  renderTitleBar() {
+    this.container_section_subtitle.innerHTML = `
         <div class="section_subtitle">
             <h2>${this.titulo}</h2>
             <div>
@@ -136,205 +157,205 @@ class DataTable {
             </div>
         </div>
         `;
-    }
+  }
 
-    renderActionBtns() {
-        const buttonsId = ['btn_add', 'btn_edit', 'btn_delete'];
-        const buttonsIcon = ['add', 'edit', 'delete'];
-        const buttonsFunctions = [
-            () => {
-                this.agregarFilas();
-            },
-            () => {
-                let checkBox = this.container_table.querySelectorAll('input[type=checkbox]');
-                checkBox.forEach(check => {
-                    if (check.checked) {
-                        let fila = check.parentNode.parentNode;
-                        this.editarFilas(fila.childNodes);
-                    }
-                });
-            },
-            () => {
-                let checkBox = this.container_table.querySelectorAll('input[type=checkbox]');
-                checkBox.forEach(check => {
-                    if (check.checked) {
-                        let fila = check.parentNode.parentNode;
-                        check.checked = false;
-                        this.eliminarFilas(fila);
-                    }
-                });
-            },
-        ];
-
-        let fragment = document.createDocumentFragment();
-        for (let i = 0; i < buttonsId.length; i++) {
-            let divBtn = document.createElement('div');
-            divBtn.innerHTML = `<span class="material-icons-round">${buttonsIcon[i]}</span>`;
-            divBtn.id = buttonsId[i];
-            divBtn.classList.add('btns');
-            divBtn.addEventListener('click', buttonsFunctions[i], {passive: true});
-            fragment.appendChild(divBtn);
-        }
-        this.container_buttons.appendChild(fragment);
-    }
-
-    renderModal(body) {
-        let modalTitle = 'Modal Title';
-
-        let containerModal = document.createElement('div');
-        let containerHeader = document.createElement('div');
-
-        containerModal.classList.add('modal-container');
-        containerHeader.classList.add('modal-header');
-
-        function renderHeader() {
-            let headerContent = document.createElement('div');
-            headerContent.classList.add('header-content');
-
-            function renderTitle() {
-                let divModalTitle = document.createElement('div');
-                divModalTitle.classList.add('modal-title');
-
-                let h3Title = document.createElement('h3');
-                h3Title.textContent = modalTitle;
-
-                divModalTitle.append(h3Title);
-                return divModalTitle;
-            }
-
-            function renderActions() {
-                let divModalActions = document.createElement('div');
-                divModalActions.classList.add('modal-actions');
-
-                let spanCloseButton = document.createElement('span');
-                spanCloseButton.classList.add('material-icons-round');
-                spanCloseButton.textContent = 'close';
-                spanCloseButton.addEventListener('click', () => {
-                    containerModal.remove();
-                }, {passive: true});
-
-                divModalActions.append(spanCloseButton);
-                return divModalActions;
-            }
-
-            headerContent.append(renderTitle(), renderActions());
-            return headerContent;
-        }
-
-        function renderBody() {
-            let bodyContent = document.createElement('div');
-            bodyContent.classList.add('body-content');
-            bodyContent.append(body);
-            return bodyContent;
-        }
-
-        containerModal.append(renderHeader(), renderBody());
-        this.section_subbody.append(containerModal);
-    }
-
-    renderHeaders() {
-        let tr = document.createElement('tr');
-        let dFragment = document.createDocumentFragment();
-        let th = document.createElement('th');
-        tr.appendChild(th);
-
-        this.headers.forEach(header => {
-            let th = document.createElement('th');
-            th.textContent = header;
-            dFragment.appendChild(th);
+  renderActionBtns() {
+    const buttonsId = ['btn_add', 'btn_edit', 'btn_delete'];
+    const buttonsIcon = ['add', 'edit', 'delete'];
+    const buttonsFunctions = [
+      () => {
+        this.agregarFilas();
+      },
+      () => {
+        let checkBox = this.container_table.querySelectorAll('input[type=checkbox]');
+        checkBox.forEach(check => {
+          if (check.checked) {
+            let fila = check.parentNode.parentNode;
+            this.editarFilas(fila.childNodes);
+          }
         });
-        tr.appendChild(dFragment);
-        this.thead.appendChild(tr);
+      },
+      () => {
+        let checkBox = this.container_table.querySelectorAll('input[type=checkbox]');
+        checkBox.forEach(check => {
+          if (check.checked) {
+            let fila = check.parentNode.parentNode;
+            check.checked = false;
+            this.eliminarFilas(fila);
+          }
+        });
+      },
+    ];
+
+    let fragment = document.createDocumentFragment();
+    for (let i = 0; i < buttonsId.length; i++) {
+      let divBtn = document.createElement('div');
+      divBtn.innerHTML = `<span class="material-icons-round">${buttonsIcon[i]}</span>`;
+      divBtn.id = buttonsId[i];
+      divBtn.classList.add('btns');
+      divBtn.addEventListener('click', buttonsFunctions[i], {passive: true});
+      fragment.appendChild(divBtn);
+    }
+    this.container_buttons.appendChild(fragment);
+  }
+
+  renderModal(body) {
+    let modalTitle = 'Modal Title';
+
+    let containerModal = document.createElement('div');
+    let containerHeader = document.createElement('div');
+
+    containerModal.classList.add('modal-container');
+    containerHeader.classList.add('modal-header');
+
+    function renderHeader() {
+      let headerContent = document.createElement('div');
+      headerContent.classList.add('header-content');
+
+      function renderTitle() {
+        let divModalTitle = document.createElement('div');
+        divModalTitle.classList.add('modal-title');
+
+        let h3Title = document.createElement('h3');
+        h3Title.textContent = modalTitle;
+
+        divModalTitle.append(h3Title);
+        return divModalTitle;
+      }
+
+      function renderActions() {
+        let divModalActions = document.createElement('div');
+        divModalActions.classList.add('modal-actions');
+
+        let spanCloseButton = document.createElement('span');
+        spanCloseButton.classList.add('material-icons-round');
+        spanCloseButton.textContent = 'close';
+        spanCloseButton.addEventListener('click', () => {
+          containerModal.remove();
+        }, {passive: true});
+
+        divModalActions.append(spanCloseButton);
+        return divModalActions;
+      }
+
+      headerContent.append(renderTitle(), renderActions());
+      return headerContent;
     }
 
-    renderTrs() {
-        let dFragment = document.createDocumentFragment();
-        let rows = 0;
-        for (let i = this.indexUltElement; i < this.cantRows; i++) {
-            if (this.trs[i]) {
-                let t = this.trs[i];
-                let rowId = `${t[Object.keys(t)[0]]}-${this.tableName}`;
-                let checkBoxId = `${t[Object.keys(t)[0]]}-${this.titulo}`;
+    function renderBody() {
+      let bodyContent = document.createElement('div');
+      bodyContent.classList.add('body-content');
+      bodyContent.append(body);
+      return bodyContent;
+    }
 
-                let tr = document.createElement('tr');
-                tr.id = rowId;
+    containerModal.append(renderHeader(), renderBody());
+    this.section_subbody.append(containerModal);
+  }
 
-                let td = document.createElement('td');
-                td.innerHTML = `
+  renderHeaders() {
+    let tr = document.createElement('tr');
+    let dFragment = document.createDocumentFragment();
+    let th = document.createElement('th');
+    tr.appendChild(th);
+
+    this.headers.forEach(header => {
+      let th = document.createElement('th');
+      th.textContent = header;
+      dFragment.appendChild(th);
+    });
+    tr.appendChild(dFragment);
+    this.thead.appendChild(tr);
+  }
+
+  renderTrs() {
+    let dFragment = document.createDocumentFragment();
+    let rows = 0;
+    for (let i = this.indexUltElement; i < this.cantRows; i++) {
+      if (this.trs[i]) {
+        let t = this.trs[i];
+        let rowId = `${t[Object.keys(t)[0]]}-${this.tableName}`;
+        let checkBoxId = `${t[Object.keys(t)[0]]}-${this.titulo}`;
+
+        let tr = document.createElement('tr');
+        tr.id = rowId;
+
+        let td = document.createElement('td');
+        td.innerHTML = `
                 <input type="checkbox" id="${checkBoxId}" class="table_check">
                 <label for="${checkBoxId}">
                     <div class="custom_checkbox" id="custom_checkbox"></div>
                 </label>`;
-                tr.append(td);
+        tr.append(td);
 
-                let describeCont = 0;
-                for (let i in t) {
-                    let td = document.createElement('td');
-                    let describe = this.describe[describeCont] ? this.describe[describeCont] : false;
-                    if (describe && describe.Field == 'foto') {
-                        let ahref = document.createElement('a');
-                        ahref.setAttribute('target', '_blank');
-                        ahref.href = t[i];
+        let describeCont = 0;
+        for (let i in t) {
+          let td = document.createElement('td');
+          let describe = this.describe[describeCont] ? this.describe[describeCont] : false;
+          if (describe && describe.Field == 'foto') {
+            let ahref = document.createElement('a');
+            ahref.setAttribute('target', '_blank');
+            ahref.href = t[i];
 
-                        let img = document.createElement('img');
-                        img.src = t[i];
-                        img.setAttribute('loading', 'lazy');
-                        img.addEventListener('error', () => {
-                            td.innerHTML = `
+            let img = document.createElement('img');
+            img.src = t[i];
+            img.setAttribute('loading', 'lazy');
+            img.addEventListener('error', () => {
+              td.innerHTML = `
                             <span class="material-icons-round" style="color: gray;">image_not_supported</span>`;
-                        }, {passive: true});
+            }, {passive: true});
 
-                        ahref.appendChild(img);
-                        td.appendChild(ahref);
-                    } else if (describe && describe.Field == 'estado') {
-                        td.textContent = t[i];
-                        if (t[i] == 'T') {
-                            td.classList.add('estado_activo');
-                        } else {
-                            td.classList.add('estado_inactivo');
-                        }
-                    } else {
-                        td.textContent = t[i];
-                    }
-                    describeCont++;
-                    tr.appendChild(td);
-                }
-                dFragment.appendChild(tr);
+            ahref.appendChild(img);
+            td.appendChild(ahref);
+          } else if (describe && describe.Field == 'estado') {
+            td.textContent = t[i];
+            if (t[i] == 'T') {
+              td.classList.add('estado_activo');
+            } else {
+              td.classList.add('estado_inactivo');
             }
-            rows++;
-            if (rows == this.numRowsPerPage) break;
+          } else {
+            td.textContent = t[i];
+          }
+          describeCont++;
+          tr.appendChild(td);
         }
-        this.tbody.innerHTML = '';
-        this.tbody.appendChild(dFragment);
+        dFragment.appendChild(tr);
+      }
+      rows++;
+      if (rows == this.numRowsPerPage) break;
+    }
+    this.tbody.innerHTML = '';
+    this.tbody.appendChild(dFragment);
+  }
+
+  renderRowActions() {
+    let numPages = Math.ceil(this.cantRows / this.numRowsPerPage);
+    while (this.actualPage > numPages) {
+      this.actualPage--;
     }
 
-    renderRowActions() {
-        let numPages = Math.ceil(this.cantRows / this.numRowsPerPage);
-        while (this.actualPage > numPages) {
-            this.actualPage--;
-        }
+    let container_pages_number = document.createElement('div');
+    container_pages_number.classList.add('container_pages_number');
+    container_pages_number.innerHTML += '<p>Mostrando</p>';
 
-        let container_pages_number = document.createElement('div');
-        container_pages_number.classList.add('container_pages_number');
-        container_pages_number.innerHTML += '<p>Mostrando</p>';
+    let inputNumRows = document.createElement('input');
+    inputNumRows.setAttribute('type', 'number');
+    inputNumRows.setAttribute('value', this.numRowsPerPage);
+    inputNumRows.setAttribute('max', this.cantRows);
+    inputNumRows.setAttribute('min', 1);
 
-        let inputNumRows = document.createElement('input');
-        inputNumRows.setAttribute('type', 'number');
-        inputNumRows.setAttribute('value', this.numRowsPerPage);
-        inputNumRows.setAttribute('max', this.cantRows);
-        inputNumRows.setAttribute('min', 1);
+    let buttonChangeRows = document.createElement('span');
+    buttonChangeRows.classList.add('material-icons-round');
+    buttonChangeRows.textContent = 'arrow_right';
 
-        let buttonChangeRows = document.createElement('span');
-        buttonChangeRows.classList.add('material-icons-round');
-        buttonChangeRows.textContent = 'arrow_right';
+    container_pages_number.append(inputNumRows, buttonChangeRows);
+    container_pages_number.innerHTML += `<p>de ${this.cantRows}</p>`;
+    this.changeNumRowsPerPage(container_pages_number);
 
-        container_pages_number.append(inputNumRows, buttonChangeRows);
-        container_pages_number.innerHTML += `<p>de ${this.cantRows}</p>`;
-        this.changeNumRowsPerPage(container_pages_number);
-
-        let container_pages_nav = document.createElement('div');
-        container_pages_nav.classList.add('container_pages_nav');
-        container_pages_nav.innerHTML = `
+    let container_pages_nav = document.createElement('div');
+    container_pages_nav.classList.add('container_pages_nav');
+    container_pages_nav.innerHTML = `
             <ul>
                 ${this.actualPage > 2 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
                 ${this.actualPage > 1 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
@@ -342,212 +363,214 @@ class DataTable {
                 ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
                 ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
                 ${numPages != this.actualPage ? '<li>' + numPages + '</li>' : ''}
-                ${this.actualPage > 1 ? "<li data-type='rowRight'><span class='material-icons-round'>chevron_left</span></li>" : ''}
-                ${numPages - this.actualPage > 0 ? "<li data-type='rowLeft'><span class='material-icons-round'>chevron_right</span></li>" : ''}
+                ${this.actualPage > 1 ? '<li data-type=\'rowRight\'><span class=\'material-icons-round\'>chevron_left</span></li>' : ''}
+                ${numPages - this.actualPage > 0 ? '<li data-type=\'rowLeft\'><span class=\'material-icons-round\'>chevron_right</span></li>' : ''}
             </ul>`;
 
-        this.container_rows_actions.innerHTML = '';
-        this.container_rows_actions.append(container_pages_number, container_pages_nav);
-        this.moveInRows(container_pages_nav);
+    this.container_rows_actions.innerHTML = '';
+    this.container_rows_actions.append(container_pages_number, container_pages_nav);
+    this.moveInRows(container_pages_nav);
+  }
+
+  changeNumRowsPerPage(inputParent) {
+    if (inputParent) {
+      let input = inputParent.querySelector('input');
+      let span = inputParent.querySelector('span');
+
+      let regVal = /^[0-9]*[0-9]+$/;
+
+      input.addEventListener('keydown', e => {
+        if (e.key == 'Enter' && regVal.test(input.value) && input.value != this.numRowsPerPage) {
+          this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
+          this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+          this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+          this.renderRowActions();
+          this.renderTrs();
+
+          input.value = this.numRowsPerPage;
+        }
+      }, {passive: true});
+
+      span.addEventListener('click', () => {
+        if (regVal.test(input.value) && input.value != this.numRowsPerPage) {
+          this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
+          this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+          this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+          this.renderRowActions();
+          this.renderTrs();
+
+          input.value = this.numRowsPerPage;
+        }
+      }, {passive: true});
+    } else {
+      if (this.ls.getItem(`numRowsPerPage${this.titulo}`)) {
+        this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`);
+      } else {
+        this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+      }
     }
+  }
 
-    changeNumRowsPerPage(inputParent) {
-        if (inputParent) {
-            let input = inputParent.querySelector('input');
-            let span = inputParent.querySelector('span');
+  moveInRows(container_pages_nav) {
+    let listUl = container_pages_nav.querySelector('ul');
+    listUl.addEventListener('click', evt => {
+      let rowNavSelected = parseInt(evt.target.textContent, 10);
+      if (!isNaN(rowNavSelected)) {
+        this.actualPage = rowNavSelected;
+        this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+        this.renderRowActions();
+        this.renderTrs();
+      }
+    }, {passive: true});
 
-            let regVal = /^[0-9]*[0-9]+$/;
+    let listLi = container_pages_nav.querySelectorAll('li');
+    listLi.forEach(li => {
+      if (li.dataset.type) {
+        li.addEventListener('click', () => {
+          if (li.dataset.type == 'rowRight') {
+            this.actualPage--;
+            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+            this.renderRowActions();
+            this.renderTrs();
+          }
+          if (li.dataset.type == 'rowLeft') {
+            this.actualPage++;
+            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+            this.renderRowActions();
+            this.renderTrs();
+          }
+        }, {passive: true});
+      }
+    });
+  }
 
-            input.addEventListener('keydown', e => {
-                if (e.key == 'Enter' && regVal.test(input.value) && input.value != this.numRowsPerPage) {
-                    this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
-                    this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-                    this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
-                    this.renderRowActions();
-                    this.renderTrs();
+  replaceCharacter(str, char, newChar) {
+    return str.replace(char, newChar);
+  }
 
-                    input.value = this.numRowsPerPage;
-                }
-            }, {passive: true});
+  capitalizarString(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
-            span.addEventListener('click', () => {
-                if (regVal.test(input.value) && input.value != this.numRowsPerPage) {
-                    this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
-                    this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-                    this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
-                    this.renderRowActions();
-                    this.renderTrs();
+  stringToArray(string, replaceCharacter, ...serapated) {
+    serapated.forEach(s => {
+      string = string.replace(s, replaceCharacter);
+    });
+    let arr = string.split(replaceCharacter);
+    if (arr[0] == 'int' || arr[0] == 'year') arr[0] = 'number';
+    if (arr[0] == 'char' || arr[0] == 'varchar') arr[0] = 'text';
+    if (arr[0] == 'date') arr[0] = 'date';
+    if (arr[0] == 'enum') {
+      arr[0] = 'text';
+      arr[1] = '1';
+    }
+    return arr;
+  }
 
-                    input.value = this.numRowsPerPage;
-                }
-            }, {passive: true});
+  /* editarFila(idfila) {} */
+
+  async agregarFilas() {
+    let containerBody = document.createElement('div');
+    let form = document.createElement('form');
+    form.setAttribute('enctype', 'multipart/form-data');
+
+    let fragment = document.createDocumentFragment();
+
+    for (let i = 1; i < this.headers.length; i++) {
+      let inputAttrs = ['text', '11'];
+      let disabled = false;
+
+      let input = document.createElement('input');
+      input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
+      input.placeholder = this.headers[i] ? this.headers[i] : '';
+
+      if (this.describe[i]) {
+        inputAttrs = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
+        disabled = this.describe[i].Key == 'PRI' ? true : false;
+
+        if (this.describe[i].Field == 'foto') {
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'image/*');
         } else {
-            if (this.ls.getItem(`numRowsPerPage${this.titulo}`)) {
-                this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`);
-            } else {
-                this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
-            }
+          input.setAttribute('type', inputAttrs[0]);
+          input.setAttribute('max-lenght', inputAttrs[1]);
         }
+      }
+      if (disabled) input.setAttribute('disabled', 'disabled');
+
+      fragment.appendChild(input);
     }
+    form.append(fragment);
 
-    moveInRows(container_pages_nav) {
-        let listUl = container_pages_nav.querySelector('ul');
-        listUl.addEventListener('click', evt => {
-            let rowNavSelected = parseInt(evt.target.textContent, 10);
-            if (!isNaN(rowNavSelected)) {
-                this.actualPage = rowNavSelected;
-                this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-                this.renderRowActions();
-                this.renderTrs();
-            }
-        }, {passive: true});
+    let saveBtn = document.createElement('div');
+    saveBtn.innerHTML = `<span class="btn_actualizar">Agregar ${this.tableName}}</span>`;
+    saveBtn.addEventListener('click', () => {
+      let formData = new FormData(form);
+      console.log(formData);
+    }, {passive: true});
 
-        let listLi = container_pages_nav.querySelectorAll('li');
-        listLi.forEach(li => {
-            if (li.dataset.type) {
-                li.addEventListener('click', () => {
-                    if (li.dataset.type == 'rowRight') {
-                        this.actualPage--;
-                        this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-                        this.renderRowActions();
-                        this.renderTrs();
-                    }
-                    if (li.dataset.type == 'rowLeft') {
-                        this.actualPage++;
-                        this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-                        this.renderRowActions();
-                        this.renderTrs();
-                    }
-                }, {passive: true});
-            }
-        });
-    }
+    containerBody.append(form, saveBtn);
+    this.renderModal(containerBody);
+  }
 
-    replaceCharacter(str, char, newChar) {
-        return str.replace(char, newChar);
-    }
+  async editarFilas(tdCampos) {
+    let containerBody = document.createElement('div');
+    let form = document.createElement('form');
+    form.setAttribute('enctype', 'multipart/form-data');
 
-    capitalizarString(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
+    let fragment = document.createDocumentFragment();
 
-    stringToArray(string, replaceCharacter, ...serapated) {
-        serapated.forEach(s => {
-            string = string.replace(s, replaceCharacter);
-        });
-        let arr = string.split(replaceCharacter);
-        if (arr[0] == 'int' || arr[0] == 'year') arr[0] = 'number';
-        if (arr[0] == 'char' || arr[0] == 'varchar') arr[0] = 'text';
-        if (arr[0] == 'date') arr[0] = 'date';
-        if (arr[0] == 'enum') {
-            arr[0] = 'text';
-            arr[1] = '1';
+    for (let i = 0; i < this.describe.length; i++) {
+      let describeType = ['text', '11'];
+      let disabled = false;
+
+      let input = document.createElement('input');
+      input.value = tdCampos[i + 1].textContent;
+      input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
+      input.placeholder = this.headers[i] ? this.headers[i] : '';
+
+      if (this.describe[i]) {
+        describeType = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
+        disabled = this.describe[i].Key == 'PRI' ? true : false;
+
+        if (this.describe[i].Field == 'foto') {
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'image/*');
+        } else {
+          input.setAttribute('type', describeType[0]);
+          input.setAttribute('max-lenght', describeType[1]);
         }
-        return arr;
+      }
+      if (disabled) input.setAttribute('disabled', 'disabled');
+
+      fragment.appendChild(input);
     }
+    form.append(fragment);
 
-    editarFila(idfila) {}
+    let saveBtn = document.createElement('div');
+    saveBtn.innerHTML = `<span class="btn_actualizar">Actualizar ${this.tableName}}</span>`;
+    saveBtn.addEventListener('click', () => {
+      let formData = new FormData(form);
+      console.log(formData);
+    }, {passive: true});
 
-    agregarFilas(datos) {
-        let containerBody = document.createElement('div');
-        let form = document.createElement('form');
-        form.setAttribute('enctype', 'multipart/form-data');
+    containerBody.append(form, saveBtn);
+    this.renderModal(containerBody);
+  }
 
-        let fragment = document.createDocumentFragment();
-
-        for (let i = 1; i < this.headers.length; i++) {
-            let inputAttrs = ['text', '11'];
-            let disabled = false;
-
-            let input = document.createElement('input');
-            input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
-            input.placeholder = this.headers[i] ? this.headers[i] : '';
-
-            if (this.describe[i]) {
-                inputAttrs = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
-                disabled = this.describe[i].Key == 'PRI' ? true : false;
-
-                if (this.describe[i].Field == 'foto') {
-                    input.setAttribute('type', 'file');
-                    input.setAttribute('accept', 'image/*');
-                } else {
-                    input.setAttribute('type', inputAttrs[0]);
-                    input.setAttribute('max-lenght', inputAttrs[1]);
-                }
-            }
-            if (disabled) input.setAttribute('disabled', 'disabled');
-
-            fragment.appendChild(input);
+  eliminarFilas(fila) {
+    let filaEliminarTds = fila.querySelectorAll('td');
+    filaEliminarTds.forEach((td, i) => {
+      if (this.headers[i - 1]) {
+        if (this.headers[i - 1].indexOf('id') == 0) {
+          this.deleteRow(td.textContent);
         }
-        form.append(fragment);
 
-        let saveBtn = document.createElement('div');
-        saveBtn.innerHTML = '<span class="material-icons-round">send</span>';
-        saveBtn.addEventListener('click', () => {
-            let formData = new FormData(form);
-        }, {passive: true});
-
-        containerBody.append(form, saveBtn);
-        this.renderModal(containerBody);
-    }
-
-    async editarFilas(tdCampos) {
-        let containerBody = document.createElement('div');
-        let form = document.createElement('form');
-        form.setAttribute('enctype', 'multipart/form-data');
-
-        let fragment = document.createDocumentFragment();
-
-        for (let i = 0; i < this.describe.length; i++) {
-            let describeType = ['text', '11'];
-            let disabled = false;
-
-            let input = document.createElement('input');
-            input.value = tdCampos[i + 1].textContent;
-            input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
-            input.placeholder = this.headers[i] ? this.headers[i] : '';
-
-            if (this.describe[i]) {
-                describeType = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
-                disabled = this.describe[i].Key == 'PRI' ? true : false;
-
-                if (this.describe[i].Field == 'foto') {
-                    input.setAttribute('type', 'file');
-                    input.setAttribute('accept', 'image/*');
-                } else {
-                    input.setAttribute('type', describeType[0]);
-                    input.setAttribute('max-lenght', describeType[1]);
-                }
-            }
-            if (disabled) input.setAttribute('disabled', 'disabled');
-
-            fragment.appendChild(input);
+        if (this.headers[i - 1].indexOf('estado') == 0) {
+          td.classList.add('estado_inactivo');
+          td.classList.remove('estado_activo');
         }
-        form.append(fragment);
-
-        let saveBtn = document.createElement('div');
-        saveBtn.innerHTML = '<span class="material-icons-round">send</span>';
-        saveBtn.addEventListener('click', () => {
-            let formData = new FormData(form);
-        }, {passive: true});
-
-        containerBody.append(form, saveBtn);
-        this.renderModal(containerBody);
-    }
-
-    eliminarFilas(fila) {
-        let filaEliminarTds = fila.querySelectorAll('td');
-        filaEliminarTds.forEach((td, i) => {
-            if (this.headers[i - 1]) {
-                if (this.headers[i - 1].indexOf('id') == 0) {
-                    this.deleteRow(td.textContent);
-                }
-
-                if (this.headers[i - 1].indexOf('estado') == 0) {
-                    td.classList.add('estado_inactivo');
-                    td.classList.remove('estado_activo');
-                }
-            }
-        });
-    }
+      }
+    });
+  }
 }

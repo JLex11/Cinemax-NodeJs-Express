@@ -8,12 +8,12 @@ const imagesActions = require('../utils/imagesActions');
 const thumbail = imagesActions.thumbail({ route: '/public/thumbails/actores/' });
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'src/public/fotos/actores/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname);
-    },
+  destination: (req, file, cb) => {
+    cb(null, 'src/public/fotos/actores/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
 });
 const upload = multer({ storage });
 
