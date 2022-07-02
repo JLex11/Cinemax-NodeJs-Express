@@ -13,12 +13,12 @@ controller.describe = (req, res) => {
 
 controller.listAll = (req, res) => {
   req.getConnection((err, conn) => {
-    conn.query('SELECT * FROM actor WHERE estado = "T"', (err, rows) => {
+    conn.query('SELECT * FROM actor ORDER BY estado ASC', (err, rows) => {
       if (err) res.json(err);
-      /* res.json(rows); */
-      res.render('actores', {
+      res.json(rows);
+      /* res.render('actores', {
         data: rows
-      });
+      }); */
     });
   });
 };
@@ -27,7 +27,7 @@ controller.listOne = (req, res) => {
   let { id_actor } = req.params;
 
   req.getConnection((err, conn) => {
-    conn.query('SELECT * FROM actor WHERE id_actor = ? AND estado = "T"', id_actor, (err, rows) => {
+    conn.query('SELECT * FROM actor WHERE id_actor = ?', id_actor, (err, rows) => {
       if (err) res.json(err);
 
       if (rows != '') {
@@ -39,11 +39,14 @@ controller.listOne = (req, res) => {
   });
 };
 
-controller.save = async (req, res) => {
+controller.save = (req, res) => {
   for (let clave in req.body) {
     req.body[clave] = utilFunctions.capitalize(req.body[clave]);
+    console.log(req.body[clave]);
   }
-  req.body.foto = '/public/fotos/actores/' + req.file.originalname;
+  if (req.file) {
+    req.body.foto = '/public/fotos/actores/' + req.file.originalname;
+  }
 
   req.getConnection((err, conn) => {
     if (err) res.json(err);
@@ -62,11 +65,7 @@ controller.edit = (req, res) => {
     if (err) res.json(err);
 
     conn.query('SELECT * FROM actor WHERE id_actor = ?', id_actor, (err, rows) => {
-      console.log(rows);
-      /* res.json(rows); */
-      res.render('actores_edit', {
-        data: rows[0]
-      });
+      res.json(rows);
     });
   });
 };
@@ -76,15 +75,16 @@ controller.update = (req, res) => {
   for (let clave in req.body) {
     req.body[clave] = utilFunctions.capitalize(req.body[clave]);
   }
-
-  req.body.foto = '/public/fotos/actores/' + req.file.originalname;
-  console.log('req.body', req.body);
+  if (req.file) {
+    req.body.foto = '/public/fotos/actores/' + req.file.originalname;
+  }
 
   req.getConnection((err, conn) => {
     if (err) res.json(err);
 
     conn.query('UPDATE actor SET ? WHERE id_actor = ?', [req.body, id_actor], (err, rows) => {
-      console.log('rows', rows);
+      if (err) res.json(err);
+      console.log(rows);
       res.redirect('/Actores/');
     });
   });

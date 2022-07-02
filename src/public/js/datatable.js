@@ -3,7 +3,6 @@ class DataTable {
   documentBody;
   elementParent;
   container_subsection;
-  container_subsectionY;
   container_table;
   container_buttons;
   section_subbody;
@@ -46,17 +45,14 @@ class DataTable {
     table = table ? table : this.tableName;
     let route = this.requestRoutes[table] ? this.requestRoutes[table] : this.requestRoutes[this.tableName];
     route += id ? id : '';
-    datos = datos ? datos : {'': ''};
+    datos = datos ? datos : { null: 'null' };
 
     let requestContent = {};
 
     if (method == 'POST') {
       requestContent = {
         method: method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(datos),
+        body: datos,
       };
     } else {
       requestContent = {
@@ -103,20 +99,6 @@ class DataTable {
     this.cantRows = this.trs.length;
 
     this.renderTable();
-    this.container_subsectionY = this.getSubsectionY().then((response) => {
-      console.log(response);
-      return response;
-    });
-    
-  }
-  
-  getSubsectionY() {
-    return new Promise((resolve) => {
-      new ResizeObserver(() => {
-        resolve(this.container_subsection.offsetTop);
-      });
-      resolve(this.container_subsection.offsetTop);
-    });
   }
 
   renderTable() {
@@ -181,7 +163,7 @@ class DataTable {
           if (check.checked) {
             let fila = check.parentNode.parentNode;
             check.checked = false;
-            this.eliminarFilas(fila);
+            this.eliminarFila(fila);
           }
         });
       },
@@ -193,7 +175,8 @@ class DataTable {
       divBtn.innerHTML = `<span class="material-icons-round">${buttonsIcon[i]}</span>`;
       divBtn.id = buttonsId[i];
       divBtn.classList.add('btns');
-      divBtn.addEventListener('click', buttonsFunctions[i], {passive: true});
+      divBtn.addEventListener('click', buttonsFunctions[i], { passive: true });
+
       fragment.appendChild(divBtn);
     }
     this.container_buttons.appendChild(fragment);
@@ -230,9 +213,13 @@ class DataTable {
         let spanCloseButton = document.createElement('span');
         spanCloseButton.classList.add('material-icons-round');
         spanCloseButton.textContent = 'close';
-        spanCloseButton.addEventListener('click', () => {
-          containerModal.remove();
-        }, {passive: true});
+        spanCloseButton.addEventListener(
+          'click',
+          () => {
+            containerModal.remove();
+          },
+          { passive: true }
+        );
 
         divModalActions.append(spanCloseButton);
         return divModalActions;
@@ -300,10 +287,14 @@ class DataTable {
             let img = document.createElement('img');
             img.src = t[i];
             img.setAttribute('loading', 'lazy');
-            img.addEventListener('error', () => {
-              td.innerHTML = `
+            img.addEventListener(
+              'error',
+              () => {
+                td.innerHTML = `
                             <span class="material-icons-round" style="color: gray;">image_not_supported</span>`;
-            }, {passive: true});
+              },
+              { passive: true }
+            );
 
             ahref.appendChild(img);
             td.appendChild(ahref);
@@ -356,20 +347,83 @@ class DataTable {
     let container_pages_nav = document.createElement('div');
     container_pages_nav.classList.add('container_pages_nav');
     container_pages_nav.innerHTML = `
-            <ul>
-                ${this.actualPage > 2 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
-                ${this.actualPage > 1 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
-                <li class="actualPage_indicator">${this.actualPage}</li>
-                ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
-                ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
-                ${numPages != this.actualPage ? '<li>' + numPages + '</li>' : ''}
-                ${this.actualPage > 1 ? '<li data-type=\'rowRight\'><span class=\'material-icons-round\'>chevron_left</span></li>' : ''}
-                ${numPages - this.actualPage > 0 ? '<li data-type=\'rowLeft\'><span class=\'material-icons-round\'>chevron_right</span></li>' : ''}
-            </ul>`;
+    <ul>
+        ${this.actualPage > 2 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
+        ${this.actualPage > 1 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
+        <li class="actualPage_indicator">${this.actualPage}</li>
+        ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
+        ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
+        ${numPages != this.actualPage ? '<li>' + numPages + '</li>' : ''}
+        ${this.actualPage > 1 ? '<li data-type="rowRight"><span class="material-icons-round">chevron_left</span></li>' : ''}
+        ${numPages - this.actualPage > 0 ? '<li data-type="rowLeft"><span class="material-icons-round">chevron_right</span></li>' : ''}
+    </ul>`;
 
     this.container_rows_actions.innerHTML = '';
     this.container_rows_actions.append(container_pages_number, container_pages_nav);
     this.moveInRows(container_pages_nav);
+  }
+
+  renderForm(inputValues) {
+    let form = document.createElement('form');
+    form.setAttribute('enctype', 'multipart/form-data');
+
+    let fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < this.describe.length; i++) {
+      let describeType = ['text', '11'];
+      let disabled = false;
+
+      let input = document.createElement('input');
+      inputValues ? (input.value = inputValues[i+1].innerText) : (input.value = '');
+      input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
+      input.placeholder = this.headers[i] ? this.headers[i] : '';
+
+      if (this.describe[i]) {
+        describeType = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
+
+        if (this.describe[i].Key == 'PRI') {
+          disabled = true;
+          form.id = input.value;
+        } else {
+          disabled = false;
+        }
+
+        if (this.describe[i].Field == 'foto') {
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'image/*');
+        } else {
+          input.setAttribute('type', describeType[0]);
+          input.setAttribute('max-lenght', describeType[1]);
+        }
+      }
+      if (disabled) input.setAttribute('disabled', 'disabled');
+
+      fragment.appendChild(input);
+    }
+    form.append(fragment);
+    return form;
+  }
+
+  renderSaveFormBtn(form, action, buttonName) {
+    let saveBtn = document.createElement('div');
+    saveBtn.innerHTML = `<button class="btn_actualizar">${buttonName} ${this.tableName}</button>`;
+    saveBtn.addEventListener(
+      'click',
+      async () => {
+        let formData = new FormData(form);
+        this.trs = await this.tableRequest(null, `${action}/${form.id}`, 'POST', formData);
+        this.renderTrs();
+        this.renderTitleBar();
+        this.renderRowActions();
+        //cuando tengo varios modals y quiero que se cierre el modal que estoy abriendo, 
+        //este es el metodo que se ejecuta para cerrar el modal.
+        //sin que se cierren los demas modals.
+        let modalContainer = saveBtn.parentElement.parentElement.parentElement;
+        modalContainer.remove();
+      },
+      { passive: true }
+    );
+    return saveBtn;
   }
 
   changeNumRowsPerPage(inputParent) {
@@ -379,29 +433,37 @@ class DataTable {
 
       let regVal = /^[0-9]*[0-9]+$/;
 
-      input.addEventListener('keydown', e => {
-        if (e.key == 'Enter' && regVal.test(input.value) && input.value != this.numRowsPerPage) {
-          this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
-          this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-          this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
-          this.renderRowActions();
-          this.renderTrs();
+      input.addEventListener(
+        'keydown',
+        e => {
+          if (e.key == 'Enter' && regVal.test(input.value) && input.value != this.numRowsPerPage) {
+            this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
+            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+            this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+            this.renderRowActions();
+            this.renderTrs();
 
-          input.value = this.numRowsPerPage;
-        }
-      }, {passive: true});
+            input.value = this.numRowsPerPage;
+          }
+        },
+        { passive: true }
+      );
 
-      span.addEventListener('click', () => {
-        if (regVal.test(input.value) && input.value != this.numRowsPerPage) {
-          this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
-          this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-          this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
-          this.renderRowActions();
-          this.renderTrs();
+      span.addEventListener(
+        'click',
+        () => {
+          if (regVal.test(input.value) && input.value != this.numRowsPerPage) {
+            this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
+            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+            this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+            this.renderRowActions();
+            this.renderTrs();
 
-          input.value = this.numRowsPerPage;
-        }
-      }, {passive: true});
+            input.value = this.numRowsPerPage;
+          }
+        },
+        { passive: true }
+      );
     } else {
       if (this.ls.getItem(`numRowsPerPage${this.titulo}`)) {
         this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`);
@@ -413,33 +475,41 @@ class DataTable {
 
   moveInRows(container_pages_nav) {
     let listUl = container_pages_nav.querySelector('ul');
-    listUl.addEventListener('click', evt => {
-      let rowNavSelected = parseInt(evt.target.textContent, 10);
-      if (!isNaN(rowNavSelected)) {
-        this.actualPage = rowNavSelected;
-        this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-        this.renderRowActions();
-        this.renderTrs();
-      }
-    }, {passive: true});
+    listUl.addEventListener(
+      'click',
+      evt => {
+        let rowNavSelected = parseInt(evt.target.textContent, 10);
+        if (!isNaN(rowNavSelected)) {
+          this.actualPage = rowNavSelected;
+          this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+          this.renderRowActions();
+          this.renderTrs();
+        }
+      },
+      { passive: true }
+    );
 
     let listLi = container_pages_nav.querySelectorAll('li');
     listLi.forEach(li => {
       if (li.dataset.type) {
-        li.addEventListener('click', () => {
-          if (li.dataset.type == 'rowRight') {
-            this.actualPage--;
-            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-            this.renderRowActions();
-            this.renderTrs();
-          }
-          if (li.dataset.type == 'rowLeft') {
-            this.actualPage++;
-            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-            this.renderRowActions();
-            this.renderTrs();
-          }
-        }, {passive: true});
+        li.addEventListener(
+          'click',
+          () => {
+            if (li.dataset.type == 'rowRight') {
+              this.actualPage--;
+              this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+              this.renderRowActions();
+              this.renderTrs();
+            }
+            if (li.dataset.type == 'rowLeft') {
+              this.actualPage++;
+              this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+              this.renderRowActions();
+              this.renderTrs();
+            }
+          },
+          { passive: true }
+        );
       }
     });
   }
@@ -471,43 +541,9 @@ class DataTable {
 
   async agregarFilas() {
     let containerBody = document.createElement('div');
-    let form = document.createElement('form');
-    form.setAttribute('enctype', 'multipart/form-data');
+    let form = this.renderForm();
 
-    let fragment = document.createDocumentFragment();
-
-    for (let i = 1; i < this.headers.length; i++) {
-      let inputAttrs = ['text', '11'];
-      let disabled = false;
-
-      let input = document.createElement('input');
-      input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
-      input.placeholder = this.headers[i] ? this.headers[i] : '';
-
-      if (this.describe[i]) {
-        inputAttrs = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
-        disabled = this.describe[i].Key == 'PRI' ? true : false;
-
-        if (this.describe[i].Field == 'foto') {
-          input.setAttribute('type', 'file');
-          input.setAttribute('accept', 'image/*');
-        } else {
-          input.setAttribute('type', inputAttrs[0]);
-          input.setAttribute('max-lenght', inputAttrs[1]);
-        }
-      }
-      if (disabled) input.setAttribute('disabled', 'disabled');
-
-      fragment.appendChild(input);
-    }
-    form.append(fragment);
-
-    let saveBtn = document.createElement('div');
-    saveBtn.innerHTML = `<span class="btn_actualizar">Agregar ${this.tableName}}</span>`;
-    saveBtn.addEventListener('click', () => {
-      let formData = new FormData(form);
-      console.log(formData);
-    }, {passive: true});
+    let saveBtn = this.renderSaveFormBtn(form, 'add', 'Agregar');
 
     containerBody.append(form, saveBtn);
     this.renderModal(containerBody);
@@ -515,62 +551,17 @@ class DataTable {
 
   async editarFilas(tdCampos) {
     let containerBody = document.createElement('div');
-    let form = document.createElement('form');
-    form.setAttribute('enctype', 'multipart/form-data');
 
-    let fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < this.describe.length; i++) {
-      let describeType = ['text', '11'];
-      let disabled = false;
-
-      let input = document.createElement('input');
-      input.value = tdCampos[i + 1].textContent;
-      input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
-      input.placeholder = this.headers[i] ? this.headers[i] : '';
-
-      if (this.describe[i]) {
-        describeType = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
-        disabled = this.describe[i].Key == 'PRI' ? true : false;
-
-        if (this.describe[i].Field == 'foto') {
-          input.setAttribute('type', 'file');
-          input.setAttribute('accept', 'image/*');
-        } else {
-          input.setAttribute('type', describeType[0]);
-          input.setAttribute('max-lenght', describeType[1]);
-        }
-      }
-      if (disabled) input.setAttribute('disabled', 'disabled');
-
-      fragment.appendChild(input);
-    }
-    form.append(fragment);
-
-    let saveBtn = document.createElement('div');
-    saveBtn.innerHTML = `<span class="btn_actualizar">Actualizar ${this.tableName}}</span>`;
-    saveBtn.addEventListener('click', () => {
-      let formData = new FormData(form);
-      console.log(formData);
-    }, {passive: true});
+    let form = this.renderForm(tdCampos);
+    let saveBtn = this.renderSaveFormBtn(form, 'update', 'Actualizar');
 
     containerBody.append(form, saveBtn);
     this.renderModal(containerBody);
   }
 
-  eliminarFilas(fila) {
-    let filaEliminarTds = fila.querySelectorAll('td');
-    filaEliminarTds.forEach((td, i) => {
-      if (this.headers[i - 1]) {
-        if (this.headers[i - 1].indexOf('id') == 0) {
-          this.deleteRow(td.textContent);
-        }
-
-        if (this.headers[i - 1].indexOf('estado') == 0) {
-          td.classList.add('estado_inactivo');
-          td.classList.remove('estado_activo');
-        }
-      }
-    });
+  async eliminarFila(fila) {
+    let id = fila.id.split('-').shift();
+    this.trs = await this.tableRequest(null, `delete/${id}`, 'GET');
+    this.renderTrs();
   }
 }

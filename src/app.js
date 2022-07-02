@@ -1,13 +1,30 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan');
+/* const morgan = require('morgan'); */
 const myConnection = require('express-myconnection');
 const compression = require('compression');
 const mysql = require('mysql');
 const path = require('path');
 
+//launch server tu global with ngrok
+(async () => {
+  const ngrok = require('ngrok');
+  await ngrok.authtoken(process.env.NGROK_AUTHTOKEN);
+  const url = await ngrok.connect(process.env.PORT);
+  console.log(url);
+})();
+
+// create express instance
 const app = express();
+
+//importing routes
+const usuariosRoutes = require('./routes/usuarios');
+const generosRoutes = require('./routes/generos');
+const peliculasRoutes = require('./routes/peliculas');
+const actoresRoutes = require('./routes/actores');
+const directoresRoutes = require('./routes/directores');
+const estadisticasRoutes = require('./routes/estadisticas');
 
 //express settings
 app.set('port', process.env.PORT || 3000);
@@ -16,9 +33,9 @@ app.set('views', path.join(__dirname, '/views'));
 
 //middlewares
 app.use(compression({
-  level: 9,
-  threshold: 10,
+  level: 6, // compression level from 1 to 9
   filter: (req, res) => { 
+    // filter function to decide if the response should be compressed
     if (req.headers['x-no-compression']) {
       return false;
     }
@@ -26,7 +43,7 @@ app.use(compression({
   }
 }));
 app.use(cors());
-app.use(morgan('dev'));
+/* app.use(morgan('dev')); */
 app.use(
   myConnection(
     mysql,
@@ -41,18 +58,11 @@ app.use(
     'single'
   )
 );
+//express.urlencoded() is used to parse the body of the request into a JavaScript object.
 app.use(express.urlencoded({ extended: false }));
 
 //static files
 app.use('/public', express.static(path.join(__dirname, '/public')));
-
-//importing routes
-const usuariosRoutes = require('./routes/usuarios');
-const generosRoutes = require('./routes/generos');
-const peliculasRoutes = require('./routes/peliculas');
-const actoresRoutes = require('./routes/actores');
-const directoresRoutes = require('./routes/directores');
-const estadisticasRoutes = require('./routes/estadisticas');
 
 //routes
 app.use('/Usuarios/', usuariosRoutes);
