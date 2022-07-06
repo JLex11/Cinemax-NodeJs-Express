@@ -27,6 +27,16 @@ function navInSections() {
   });
 
   if (localStorage.getItem('posElementClicked')) {
+    /* let localStorageKeys = Object.keys(localStorage)
+    let lsItems = []
+    for (let i = 0; i < localStorageKeys.length; i++) {
+
+      lsItems.push({
+        key: localStorageKeys[i],
+        value: localStorage.getItem(localStorageKeys[i]),
+      })
+    } */
+
     posElementClicked = localStorage.getItem('posElementClicked');
     moverMainScroll({ focusAnimation: false });
     moverTargetSpan(posElementClicked);
@@ -334,21 +344,24 @@ async function consultarPeliculas() {
 
   // eslint-disable-next-line no-undef
   let tPeliculas = new DataTable('.data', contents);
-  let tableTrs = await tPeliculas.tableRequest();
+  let {rows} = await tPeliculas.tableRequest();
   
-  let contentsCard = {
-    id: 'Peliculas',
-    icon: 'movie',
-    bodyElements: [
-      {
-        number: tableTrs.length,
-        name: 'Peliculas',
-      },
-    ],
-  };
+  if (rows.length > 0) {
+    let contentsCard = {
+      id: 'Peliculas',
+      icon: 'movie',
+      bodyElements: [
+        {
+          number: rows.length,
+          name: 'Peliculas',
+        },
+      ],
+    };
 
-  // eslint-disable-next-line no-undef
-  new HeaderCards('chi2', contentsCard);
+    // eslint-disable-next-line no-undef
+    new HeaderCards('chi2', contentsCard);
+  }
+
   loader.classList.remove('loader');
 }
 
@@ -363,20 +376,24 @@ async function consultarEstadisticas() {
 
   // eslint-disable-next-line no-undef
   let tEstadisticas = new DataTable('.data', contents);
-  let tableTrs = await tEstadisticas.tableRequest();
-  let contentsCard = {
-    id: 'Estadisticas',
-    icon: 'bar_chart',
-    bodyElements: [
-      {
-        number: tableTrs.length,
-        name: 'Estadisticas',
-      },
-    ],
-  };
+  let { rows } = await tEstadisticas.tableRequest();
 
-  // eslint-disable-next-line no-undef
-  new HeaderCards('chi2', contentsCard);
+  if (rows.length > 0) { 
+    let contentsCard = {
+      id: 'Estadisticas',
+      icon: 'bar_chart',
+      bodyElements: [
+        {
+          number: rows.length,
+          name: 'Estadisticas',
+        },
+      ],
+    };
+
+    // eslint-disable-next-line no-undef
+    new HeaderCards('chi2', contentsCard);
+  }
+  
   loader.classList.remove('loader');
 }
 
@@ -391,20 +408,24 @@ async function consultarActores() {
 
   // eslint-disable-next-line no-undef
   let tActores = new DataTable('.data', contents);
-  let tableTrs = await tActores.tableRequest();
-  let contentsCard = {
-    id: 'Actores',
-    icon: 'groups',
-    bodyElements: [
-      {
-        number: tableTrs.length,
-        name: 'Actores',
-      },
-    ],
-  };
+  let {rows} = await tActores.tableRequest();
+  
+  if (rows.length > 0) { 
+    let contentsCard = {
+      id: 'Actores',
+      icon: 'groups',
+      bodyElements: [
+        {
+          number: rows.length,
+          name: 'Actores',
+        },
+      ],
+    };
 
-  // eslint-disable-next-line no-undef
-  new HeaderCards('chi2', contentsCard);
+    // eslint-disable-next-line no-undef
+    new HeaderCards('chi2', contentsCard);
+  }
+
   loader.classList.remove('loader');
 }
 
@@ -419,20 +440,24 @@ async function consultarDirectores() {
 
   // eslint-disable-next-line no-undef
   let tDirectores = new DataTable('.data', contents);
-  let tableTrs = await tDirectores.tableRequest();
-  let contentsCard = {
-    id: 'Directores',
-    icon: 'people',
-    bodyElements: [
-      {
-        number: tableTrs.length,
-        name: 'Directores',
-      },
-    ],
-  };
+  let {rows} = await tDirectores.tableRequest();
+  
+  if (rows.length > 0) {
+    let contentsCard = {
+      id: 'Directores',
+      icon: 'people',
+      bodyElements: [
+        {
+          number: rows.length,
+          name: 'Directores',
+        },
+      ],
+    };
 
-  // eslint-disable-next-line no-undef
-  new HeaderCards('chi2', contentsCard);
+    // eslint-disable-next-line no-undef
+    new HeaderCards('chi2', contentsCard);
+  }
+
   loader.classList.remove('loader');
 }
 
@@ -447,20 +472,24 @@ async function consultarGeneros() {
 
   // eslint-disable-next-line no-undef
   let tGeneros = new DataTable('.data', contents);
-  let tableTrs = await tGeneros.tableRequest();
-  let contentsCard = {
-    id: 'Generos',
-    icon: 'theaters',
-    bodyElements: [
-      {
-        number: tableTrs.length,
-        name: 'Generos',
-      },
-    ],
-  };
+  let {rows} = await tGeneros.tableRequest();
+  
+  if (rows.length > 0) { 
+    let contentsCard = {
+      id: 'Generos',
+      icon: 'theaters',
+      bodyElements: [
+        {
+          number: rows.length,
+          name: 'Generos',
+        },
+      ],
+    };
 
-  // eslint-disable-next-line no-undef
-  new HeaderCards('chi2', contentsCard);
+    // eslint-disable-next-line no-undef
+    new HeaderCards('chi2', contentsCard);
+  }
+
   loader.classList.remove('loader');
 }
 

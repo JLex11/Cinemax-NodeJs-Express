@@ -3,7 +3,7 @@ const controller = {};
 controller.describe = (req, res) => {
   req.getConnection((err, conn) => {
     conn.query('DESCRIBE estadisticas', (err, rows) => {
-      if (err) res.json(err);
+      if (err) return res.json(err);
       res.json(rows);
     });
   });
@@ -11,10 +11,9 @@ controller.describe = (req, res) => {
 
 controller.listAll = (req, res) => {
   req.getConnection((err, conn) => {
-    conn.query('SELECT * FROM estadisticas WHERE estado = "T"', (err, rows) => {
-      if (err) res.json(err);
-
-      res.json(rows);
+    conn.query('SELECT * FROM estadisticas ORDER BY estado ASC', (err, rows, fields) => {
+      if (err) return res.json(err);
+      res.json({ rows, fields });
     });
   });
 };
@@ -23,13 +22,13 @@ controller.listOne = (req, res) => {
   let { id_estadisticas } = req.params;
 
   req.getConnection((err, conn) => {
-    conn.query('SELECT * FROM estadisticas WHERE id_estadisticas = ? estado = "T"', id_estadisticas, (err, rows) => {
-      if (err) res.json(err);
+    conn.query('SELECT * FROM estadisticas WHERE id_estadisticas = ?', id_estadisticas, (err, rows, fields) => {
+      if (err) return res.json(err);
 
       if (rows != '') {
-        res.json(rows);
+        return res.json({rows, fields});
       } else {
-        res.redirect('/Estadisticas/');
+        return res.redirect(303, '/Estadisticas/');
       }
     });
   });
@@ -37,12 +36,10 @@ controller.listOne = (req, res) => {
 
 controller.save = (req, res) => {
   req.getConnection((err, conn) => {
-    if (err) res.json(err);
-
     conn.query('INSERT INTO estadisticas SET ?', req.body, (err, rows) => {
-      if (err) throw err;
+      if (err) return res.json(err);
       console.log(rows);
-      res.redirect('/Estadisticas/');
+      res.redirect(303, '/Estadisticas');
     });
   });
 };
@@ -51,11 +48,11 @@ controller.edit = (req, res) => {
   let { id_estadisticas } = req.params;
 
   req.getConnection((err, conn) => {
-    if (err) res.json(err);
+    if (err) return res.json(err);
 
-    conn.query('SELECT * FROM estadisticas WHERE id_estadisticas = ?', id_estadisticas, (err, rows) => {
+    conn.query('SELECT * FROM estadisticas WHERE id_estadisticas = ?', id_estadisticas, (err, rows, fields) => {
       console.log(rows);
-      res.json(rows);
+      res.json({rows, fields});
     });
   });
 };
@@ -64,11 +61,11 @@ controller.update = (req, res) => {
   let { id_estadisticas } = req.params;
 
   req.getConnection((err, conn) => {
-    if (err) res.json(err);
+    if (err) return res.json(err);
 
     conn.query('UPDATE estadisticas SET ? WHERE id_estadisticas = ?', [req.body, id_estadisticas], (err, rows) => {
       console.log(rows);
-      res.redirect('/Estadisticas/');
+      res.redirect(303, '/Estadisticas/');
     });
   });
 };
@@ -77,11 +74,11 @@ controller.delete = (req, res) => {
   let { id_estadisticas } = req.params;
 
   req.getConnection((err, conn) => {
-    if (err) res.json(err);
+    if (err) return res.json(err);
 
     conn.query('UPDATE estadisticas SET estado = "F" WHERE id_estadisticas = ?', id_estadisticas, (err, rows) => {
       console.log(rows);
-      res.redirect('/Estadisticas/');
+      res.redirect(303, '/Estadisticas/');
     });
   });
 };

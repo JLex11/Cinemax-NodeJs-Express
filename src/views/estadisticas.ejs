@@ -13,13 +13,13 @@
                     <div class="card-body">
                         <form action="/Estadisticas/add" method="post">
                             <div class="form-group mt-2">
-                                <input type="number" name="cantvistas" placeholder="Cant. vistas" class="form-control">
+                                <input type="number" name="cant_vistas" placeholder="Cant. vistas" class="form-control">
                             </div>
                             <div class="form-group mt-2">
-                                <input type="number" name="cantlikes" placeholder="Cant. likes" class="form-control">
+                                <input type="number" name="cant_likes" placeholder="Cant. likes" class="form-control">
                             </div>
                             <div class="form-group mt-2">
-                                <input type="number" name="cantcomentarios" placeholder="Cant. comentarios" class="form-control">
+                                <input type="number" name="cant_comentarios" placeholder="Cant. comentarios" class="form-control">
                             </div>
                             <input type="hidden" name="estado" value="T">
                             <input type="submit" value="Add gender" class="btn btn-outline-primary mt-3">
@@ -43,16 +43,16 @@
                             <% for(let i = 0; i < data.length; i++){ %>
                                 <tr class="table-light">
                                     <td><%= i+1 %></td>
-                                    <td><%= data[i].idestadisticas %></td>
-                                    <td><%= data[i].cantvistas %></td>
-                                    <td><%= data[i].cantlikes %></td>
-                                    <td><%= data[i].cantcomentarios %></td>
+                                    <td><%= data[i].id_estadisticas %></td>
+                                    <td><%= data[i].cant_vistas %></td>
+                                    <td><%= data[i].cant_likes %></td>
+                                    <td><%= data[i].cant_comentarios %></td>
                                     <td scope="row"><%= data[i].estado %></td>
                                     <td>
-                                        <a href="/Estadisticas/delete/<%= data[i].idestadisticas%>" class="btn btn-outline-danger">Delete</a>
+                                        <a href="/Estadisticas/delete/<%= data[i].id_estadisticas%>" class="btn btn-outline-danger">Delete</a>
                                     </td>
                                     <td>
-                                        <a href="/Estadisticas/update/<%= data[i].idestadisticas%>" class="btn btn-outline-primary">Update</a>
+                                        <a href="/Estadisticas/update/<%= data[i].id_estadisticas%>" class="btn btn-outline-primary">Update</a>
                                     </td>
                                 </tr>
                             <% } %>

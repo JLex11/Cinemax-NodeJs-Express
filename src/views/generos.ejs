@@ -37,14 +37,14 @@
                             <% for(let i = 0; i < data.length; i++){ %>
                                 <tr class="table-light">
                                     <td><%= i+1 %></td>
-                                    <td><%= data[i].idgenero %></td>
+                                    <td><%= data[i].id_genero %></td>
                                     <td><%= data[i].nombre %></td>
                                     <td scope="row"><%= data[i].estado %></td>
                                     <td>
-                                        <a href="/Generos/delete/<%= data[i].idgenero%>" class="btn btn-outline-danger">Delete</a>
+                                        <a href="/Generos/delete/<%= data[i].id_genero%>" class="btn btn-outline-danger">Delete</a>
                                     </td>
                                     <td>
-                                        <a href="/Generos/update/<%= data[i].idgenero%>" class="btn btn-outline-primary">Update</a>
+                                        <a href="/Generos/update/<%= data[i].id_genero%>" class="btn btn-outline-primary">Update</a>
                                     </td>
                                 </tr>
                             <% } %>

@@ -43,23 +43,25 @@ class DataTable {
 
   async tableRequest(table, id, method, datos) {
     table = table ? table : this.tableName;
-    let route = this.requestRoutes[table] ? this.requestRoutes[table] : this.requestRoutes[this.tableName];
+    let route = this.requestRoutes[table]
+      ? this.requestRoutes[table]
+      : this.requestRoutes[this.tableName];
     route += id ? id : '';
-    datos = datos ? datos : { null: 'null' };
+
+    datos = datos
+      ? datos
+      : { null: 'null' };
 
     let requestContent = {};
 
     if (method == 'POST') {
       requestContent = {
-        method: method,
+        method: 'POST',
         body: datos,
       };
     } else {
       requestContent = {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: 'GET'
       };
     }
 
@@ -72,7 +74,11 @@ class DataTable {
   }
 
   async makeTable() {
-    this.trs = await this.tableRequest();
+    const { rows, fields } = await this.tableRequest();
+    if (rows == undefined || rows == '' || rows == null || rows.length == 0) return;
+
+    this.trs = rows;
+    this.tableFields = fields;
     this.describe = await this.tableRequest('', 'describe');
     this.headers = Object.getOwnPropertyNames(this.trs[0]);
     this.headers = this.headers.map(header => {
@@ -260,56 +266,25 @@ class DataTable {
     let rows = 0;
     for (let i = this.indexUltElement; i < this.cantRows; i++) {
       if (this.trs[i]) {
-        let t = this.trs[i];
-        let rowId = `${t[Object.keys(t)[0]]}-${this.tableName}`;
-        let checkBoxId = `${t[Object.keys(t)[0]]}-${this.titulo}`;
+        let fila = this.trs[i];
+        let rowId = `${fila[Object.keys(fila)[0]]}-${this.tableName}`;
+        let checkBoxId = `${fila[Object.keys(fila)[0]]}-${this.titulo}`;
 
         let tr = document.createElement('tr');
         tr.id = rowId;
 
         let td = document.createElement('td');
         td.innerHTML = `
-                <input type="checkbox" id="${checkBoxId}" class="table_check">
-                <label for="${checkBoxId}">
-                    <div class="custom_checkbox" id="custom_checkbox"></div>
-                </label>`;
+          <input type="checkbox" id="${checkBoxId}" class="table_check">
+          <label for="${checkBoxId}">
+              <div class="custom_checkbox" id="custom_checkbox"></div>
+          </label>`;
         tr.append(td);
 
         let describeCont = 0;
-        for (let i in t) {
-          let td = document.createElement('td');
-          let describe = this.describe[describeCont] ? this.describe[describeCont] : false;
-          if (describe && describe.Field == 'foto') {
-            let ahref = document.createElement('a');
-            ahref.setAttribute('target', '_blank');
-            ahref.href = t[i];
-
-            let img = document.createElement('img');
-            img.src = t[i];
-            img.setAttribute('loading', 'lazy');
-            img.addEventListener(
-              'error',
-              () => {
-                td.innerHTML = `
-                            <span class="material-icons-round" style="color: gray;">image_not_supported</span>`;
-              },
-              { passive: true }
-            );
-
-            ahref.appendChild(img);
-            td.appendChild(ahref);
-          } else if (describe && describe.Field == 'estado') {
-            td.textContent = t[i];
-            if (t[i] == 'T') {
-              td.classList.add('estado_activo');
-            } else {
-              td.classList.add('estado_inactivo');
-            }
-          } else {
-            td.textContent = t[i];
-          }
+        for (let campo in fila) {
+          tr.appendChild(this.renderTd(fila[campo], describeCont));
           describeCont++;
-          tr.appendChild(td);
         }
         dFragment.appendChild(tr);
       }
@@ -318,6 +293,46 @@ class DataTable {
     }
     this.tbody.innerHTML = '';
     this.tbody.appendChild(dFragment);
+  }
+
+  renderTd(campo, describeCont) {
+    let td = document.createElement('td');
+    let describe = this.describe[describeCont] ? this.describe[describeCont] : false;
+
+    if (describe && describe.Field == 'foto') {
+      td.appendChild(this.renderImg(campo));
+    } else if (describe && describe.Field == 'estado') {
+      td.textContent = campo;
+
+      if (campo == 'T') td.classList.add('estado_activo');
+      else td.classList.add('estado_inactivo');
+    } else {
+      td.textContent = campo;
+    }
+    return td;
+  }
+
+  renderImg(link) {
+    let fragment = document.createDocumentFragment();
+    let ahref = document.createElement('a');
+    ahref.setAttribute('target', '_blank');
+    ahref.href = link;
+
+    let img = document.createElement('img');
+    img.src = link;
+    img.setAttribute('loading', 'lazy');
+    img.addEventListener('error', () => {
+      let span = document.createElement('span');
+      span.classList.add('material-icons-round');
+      span.textContent = 'image_not_supported';
+      fragment.appendChild(span);
+    },{
+      passive: true,
+    });
+
+    ahref.appendChild(img);
+    fragment.append(ahref);
+    return fragment;
   }
 
   renderRowActions() {
@@ -347,9 +362,9 @@ class DataTable {
     let container_pages_nav = document.createElement('div');
     container_pages_nav.classList.add('container_pages_nav');
     container_pages_nav.innerHTML = `
-    <ul>
+    <ul>${this.actualPage > 1 ? '<li>1</li>' : ''}
+        ${this.actualPage > 3 ? '<li>' + (this.actualPage - 3) + '</li>' : ''}
         ${this.actualPage > 2 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
-        ${this.actualPage > 1 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
         <li class="actualPage_indicator">${this.actualPage}</li>
         ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
         ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
@@ -374,7 +389,7 @@ class DataTable {
       let disabled = false;
 
       let input = document.createElement('input');
-      inputValues ? (input.value = inputValues[i+1].innerText) : (input.value = '');
+      input.value = inputValues ? inputValues[i+1].innerText : '';
       input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
       input.placeholder = this.headers[i] ? this.headers[i] : '';
 
@@ -382,8 +397,9 @@ class DataTable {
         describeType = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
 
         if (this.describe[i].Key == 'PRI') {
+          console.log('pri', this.describe[i].Key, input.value);
           disabled = true;
-          form.id = input.value;
+          form.setAttribute('value', input.value);
         } else {
           disabled = false;
         }
@@ -411,7 +427,8 @@ class DataTable {
       'click',
       async () => {
         let formData = new FormData(form);
-        this.trs = await this.tableRequest(null, `${action}/${form.id}`, 'POST', formData);
+        let { rows } = await this.tableRequest(null, `${action}/${form.id}`, 'POST', formData);
+        this.trs = await rows;
         this.renderTrs();
         this.renderTitleBar();
         this.renderRowActions();
@@ -537,12 +554,10 @@ class DataTable {
     return arr;
   }
 
-  /* editarFila(idfila) {} */
-
   async agregarFilas() {
     let containerBody = document.createElement('div');
+    
     let form = this.renderForm();
-
     let saveBtn = this.renderSaveFormBtn(form, 'add', 'Agregar');
 
     containerBody.append(form, saveBtn);
@@ -561,7 +576,9 @@ class DataTable {
 
   async eliminarFila(fila) {
     let id = fila.id.split('-').shift();
-    this.trs = await this.tableRequest(null, `delete/${id}`, 'GET');
+    let { rows } = await this.tableRequest(null, `delete/${id}`, 'GET');
+    this.trs = rows;
     this.renderTrs();
+    this.renderRowActions();
   }
 }

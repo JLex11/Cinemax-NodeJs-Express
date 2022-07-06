@@ -21,9 +21,9 @@ router.get('/:id_pelicula', peliculasController.listOne);
 
 router.post('/add', upload.single('foto'), peliculasController.save);
 
-router.get('/delete/:id_pelicula', peliculasController.delete);
-
 router.get('/update/:id_pelicula', peliculasController.edit);
 router.post('/update/:id_pelicula', upload.single('foto'), peliculasController.update);
+
+router.get('/delete/:id_pelicula', peliculasController.delete);
 
 module.exports = router;
