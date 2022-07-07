@@ -1,5 +1,4 @@
 const queries = require('../queries/peliculasQueries');
-const utilFunctions = require('../utils/utilFunctions');
 
 const controller = {};
 
@@ -45,9 +44,6 @@ controller.listOne = (req, res) => {
 };
 
 controller.save = (req, res) => {
-  for (let clave in req.body) {
-    req.body[clave] = utilFunctions.capitalize(req.body[clave]);
-  }
   if (req.file) {
     req.body.foto = '/public/fotos/peliculas/' + req.file.filename;
   }
@@ -70,7 +66,7 @@ controller.edit = (req, res) => {
 
     conn.query(queries.one, id_pelicula, (err, rows, fields) => {
       console.log(rows);
-      res.json({rows, fields});
+      res.json({ rows, fields });
     });
   });
 };
@@ -78,10 +74,6 @@ controller.edit = (req, res) => {
 controller.update = (req, res) => {
   let { id_pelicula } = req.params;
 
-  for (let clave in req.body) {
-    req.body[clave] = utilFunctions.capitalize(req.body[clave]);
-  }
-  
   if (req.file) {
     req.body.foto = '/public/fotos/peliculas/' + req.file.filename;
   }

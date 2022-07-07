@@ -26,7 +26,7 @@ controller.listOne = (req, res) => {
       if (err) return res.json(err);
 
       if (rows != '') {
-        return res.json({rows, fields});
+        return res.json({ rows, fields });
       } else {
         return res.redirect(303, '/Estadisticas/');
       }
@@ -52,7 +52,7 @@ controller.edit = (req, res) => {
 
     conn.query('SELECT * FROM estadisticas WHERE id_estadisticas = ?', id_estadisticas, (err, rows, fields) => {
       console.log(rows);
-      res.json({rows, fields});
+      res.json({ rows, fields });
     });
   });
 };

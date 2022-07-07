@@ -1,5 +1,3 @@
-const utilFunctions = require('../utils/utilFunctions');
-
 const controller = {};
 
 controller.describe = (req, res) => {
@@ -29,7 +27,7 @@ controller.listOne = (req, res) => {
       if (err) return res.json(err);
 
       if (rows != '') {
-        return res.json({rows, fields});
+        return res.json({ rows, fields });
       } else {
         return res.redirect(303, '/Generos/');
       }
@@ -38,10 +36,6 @@ controller.listOne = (req, res) => {
 };
 
 controller.save = (req, res) => {
-  for (let clave in req.body) {
-    req.body[clave] = utilFunctions.capitalize(req.body[clave]);
-  }
-
   req.getConnection((err, conn) => {
     if (err) return res.json(err);
 
@@ -67,10 +61,6 @@ controller.edit = (req, res) => {
 };
 
 controller.update = (req, res) => {
-  for (let clave in req.body) {
-    req.body[clave] = utilFunctions.capitalize(req.body[clave]);
-  }
-  
   let { id_genero } = req.params;
 
   req.getConnection((err, conn) => {

@@ -1,5 +1,3 @@
-const utilFunctions = require('../utils/utilFunctions');
-
 const controller = {};
 
 controller.describe = (req, res) => {
@@ -16,7 +14,7 @@ controller.listAll = (req, res) => {
     conn.query('SELECT * FROM director ORDER BY estado ASC', (err, rows, fields) => {
       if (err) return res.json(err);
 
-      res.json({rows, fields});
+      res.json({ rows, fields });
     });
   });
 };
@@ -29,7 +27,7 @@ controller.listOne = (req, res) => {
       if (err) return res.json(err);
 
       if (rows != '') {
-        return res.json({rows, fields});
+        return res.json({ rows, fields });
       } else {
         return res.redirect(303, '/Directores/');
       }
@@ -38,10 +36,6 @@ controller.listOne = (req, res) => {
 };
 
 controller.save = (req, res) => {
-  for (let clave in req.body) {
-    req.body[clave] = utilFunctions.capitalize(req.body[clave]);
-  }
-
   if (req.file) {
     req.body.foto = '/public/fotos/directores/' + req.file.originalname;
   }
@@ -64,17 +58,13 @@ controller.edit = (req, res) => {
 
     conn.query('SELECT * FROM director WHERE id_director = ?', id_director, (err, rows, fields) => {
       console.log(rows);
-      res.json({rows, fields});
+      res.json({ rows, fields });
     });
   });
 };
 
 controller.update = (req, res) => {
   let { id_director } = req.params;
-  for (let clave in req.body) {
-    req.body[clave] = utilFunctions.capitalize(req.body[clave]);
-  }
-
   if (req.file) {
     req.body.foto = '/public/fotos/directores/' + req.file.originalname;
   }
@@ -83,7 +73,7 @@ controller.update = (req, res) => {
     if (err) return res.json(err);
 
     conn.query('UPDATE director SET ? WHERE id_director = ?', [req.body, id_director], (err, rows) => {
-      console.log('rows',rows);
+      console.log('rows', rows);
       res.redirect(303, '/Directores/');
     });
   });

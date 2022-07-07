@@ -44,42 +44,51 @@ function navInSections() {
     ocultarNavBar(true);
   }
 
-  navBar.addEventListener('click', e => {
-    let posNavOpt = [...navOptions].indexOf(e.target);
-    if (mainSectionsX[posNavOpt] !== undefined && posNavOpt >= 0) {
-      posElementClicked = posNavOpt;
-      localStorage.setItem('posElementClicked', posElementClicked);
+  navBar.addEventListener(
+    'click',
+    e => {
+      let posNavOpt = [...navOptions].indexOf(e.target);
+      if (mainSectionsX[posNavOpt] !== undefined && posNavOpt >= 0) {
+        posElementClicked = posNavOpt;
+        localStorage.setItem('posElementClicked', posElementClicked);
 
-      moverMainScroll({ focusAnimation: true });
-      moverTargetSpan(posElementClicked);
-      consultasADb(posElementClicked);
-    }
-  }, {passive: true});
+        moverMainScroll({ focusAnimation: true });
+        moverTargetSpan(posElementClicked);
+        consultasADb(posElementClicked);
+      }
+    },
+    { passive: true }
+  );
 
   navBar.addEventListener('mouseenter', () => {
     ocultarNavBar(false);
 
     navBar.addEventListener('mouseleave', () => {
-      setTimeout(() => {ocultarNavBar(true);}, 3000);
+      setTimeout(() => {
+        ocultarNavBar(true);
+      }, 3000);
     });
-    
   });
 
-  addEventListener('keydown', e => {
-    let auxEleClicked = posElementClicked;
-    if (e.key > 0 && e.key < mainSectionsX.length + 1 && e.altKey) {
-      posElementClicked = e.key - 1;
+  addEventListener(
+    'keydown',
+    e => {
+      let auxEleClicked = posElementClicked;
+      if (e.key > 0 && e.key < mainSectionsX.length + 1 && e.altKey) {
+        posElementClicked = e.key - 1;
 
-      if (mainSectionsX[posElementClicked] !== undefined && posElementClicked >= 0) {
-        localStorage.setItem('posElementClicked', posElementClicked);
-        moverMainScroll({ focusAnimation: true });
-        moverTargetSpan(posElementClicked);
-        consultasADb(posElementClicked);
-      } else {
-        posElementClicked = auxEleClicked;
+        if (mainSectionsX[posElementClicked] !== undefined && posElementClicked >= 0) {
+          localStorage.setItem('posElementClicked', posElementClicked);
+          moverMainScroll({ focusAnimation: true });
+          moverTargetSpan(posElementClicked);
+          consultasADb(posElementClicked);
+        } else {
+          posElementClicked = auxEleClicked;
+        }
       }
-    }
-  }, {passive: true});
+    },
+    { passive: true }
+  );
 
   new ResizeObserver(() => {
     mainSections.forEach((section, index) => {
@@ -109,7 +118,7 @@ function navInSections() {
 
     /* prevElementClicked = posElementClicked; */
     main.scrollLeft = mainSectionsX[posElementClicked];
-    if (up != false) window.scrollTo({ top: 0});
+    if (up != false) window.scrollTo({ top: 0 });
   }
 
   function moverTargetSpan(posicion) {
@@ -152,19 +161,27 @@ function navInSections() {
 function headerFunctionalities() {
   let buttonUp = document.getElementById('button_up');
 
-  window.addEventListener('scroll', () => {
-    if (document.documentElement.scrollTop >= 50) {
-      buttonUp.classList.add('button_up_active');
-    } else {
-      buttonUp.classList.remove('button_up_active');
-    }
-  }, {passive: true});
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (document.documentElement.scrollTop >= 50) {
+        buttonUp.classList.add('button_up_active');
+      } else {
+        buttonUp.classList.remove('button_up_active');
+      }
+    },
+    { passive: true }
+  );
 
-  buttonUp.addEventListener('click', () => {
-    window.scrollTo({
-      top: 0,
-    });
-  }, {passive: true});
+  buttonUp.addEventListener(
+    'click',
+    () => {
+      window.scrollTo({
+        top: 0,
+      });
+    },
+    { passive: true }
+  );
 }
 
 function crearGrafico() {
@@ -230,7 +247,6 @@ function homeHeaderCards() {
     },
   ];
 
-    
   // eslint-disable-next-line no-undef
   new HeaderCards('homeCards', contentsCard[0]);
   // eslint-disable-next-line no-undef
@@ -264,15 +280,23 @@ function isScrollableElement(elementParent, overflowElement) {
 
   buttonLeft.innerHTML = `
         <span class="material-icons-round">navigate_before</span>`;
-  buttonLeft.addEventListener('click', () => {
-    elementParent.scrollLeft -= 300;
-  }, {passive: true});
+  buttonLeft.addEventListener(
+    'click',
+    () => {
+      elementParent.scrollLeft -= 300;
+    },
+    { passive: true }
+  );
 
   buttonRight.innerHTML = `
         <span class="material-icons-round">navigate_next</span>`;
-  buttonRight.addEventListener('click', () => {
-    elementParent.scrollLeft += 300;
-  }, {passive: true});
+  buttonRight.addEventListener(
+    'click',
+    () => {
+      elementParent.scrollLeft += 300;
+    },
+    { passive: true }
+  );
 
   elementParent.parentNode.append(buttonLeft, buttonRight);
 
@@ -301,17 +325,25 @@ function isScrollableElement(elementParent, overflowElement) {
     }
   }
 
-  elementParent.addEventListener('scroll', () => {
-    isVisibilyScrollButtons();
-  }, {passive: true});
+  elementParent.addEventListener(
+    'scroll',
+    () => {
+      isVisibilyScrollButtons();
+    },
+    { passive: true }
+  );
 
-  addEventListener('resize', () => {
-    wOverflowElement = overflowElement.offsetWidth;
-    wElementParent = elementParent.offsetWidth;
-    minRange = overflowElement.offsetWidth - overflowElement.offsetWidth * 0.01;
-    maxRange = overflowElement.offsetWidth + overflowElement.offsetWidth * 0.01;
-    isVisibilyScrollButtons();
-  }, {passive: true});
+  addEventListener(
+    'resize',
+    () => {
+      wOverflowElement = overflowElement.offsetWidth;
+      wElementParent = elementParent.offsetWidth;
+      minRange = overflowElement.offsetWidth - overflowElement.offsetWidth * 0.01;
+      maxRange = overflowElement.offsetWidth + overflowElement.offsetWidth * 0.01;
+      isVisibilyScrollButtons();
+    },
+    { passive: true }
+  );
 
   new ResizeObserver(() => {
     wOverflowElement = overflowElement.offsetWidth;
@@ -339,13 +371,13 @@ async function consultarPeliculas() {
     name: 'pelicula',
     titulo: 'peliculas',
     titleIcon: 'movie',
-    requestRoutes: requestRoutes
+    requestRoutes: requestRoutes,
   };
 
   // eslint-disable-next-line no-undef
   let tPeliculas = new DataTable('.data', contents);
-  let {rows} = await tPeliculas.tableRequest();
-  
+  let { rows } = await tPeliculas.tableRequest();
+
   if (rows.length > 0) {
     let contentsCard = {
       id: 'Peliculas',
@@ -378,7 +410,7 @@ async function consultarEstadisticas() {
   let tEstadisticas = new DataTable('.data', contents);
   let { rows } = await tEstadisticas.tableRequest();
 
-  if (rows.length > 0) { 
+  if (rows.length > 0) {
     let contentsCard = {
       id: 'Estadisticas',
       icon: 'bar_chart',
@@ -393,7 +425,7 @@ async function consultarEstadisticas() {
     // eslint-disable-next-line no-undef
     new HeaderCards('chi2', contentsCard);
   }
-  
+
   loader.classList.remove('loader');
 }
 
@@ -408,9 +440,9 @@ async function consultarActores() {
 
   // eslint-disable-next-line no-undef
   let tActores = new DataTable('.data', contents);
-  let {rows} = await tActores.tableRequest();
-  
-  if (rows.length > 0) { 
+  let { rows } = await tActores.tableRequest();
+
+  if (rows.length > 0) {
     let contentsCard = {
       id: 'Actores',
       icon: 'groups',
@@ -440,8 +472,8 @@ async function consultarDirectores() {
 
   // eslint-disable-next-line no-undef
   let tDirectores = new DataTable('.data', contents);
-  let {rows} = await tDirectores.tableRequest();
-  
+  let { rows } = await tDirectores.tableRequest();
+
   if (rows.length > 0) {
     let contentsCard = {
       id: 'Directores',
@@ -472,9 +504,9 @@ async function consultarGeneros() {
 
   // eslint-disable-next-line no-undef
   let tGeneros = new DataTable('.data', contents);
-  let {rows} = await tGeneros.tableRequest();
-  
-  if (rows.length > 0) { 
+  let { rows } = await tGeneros.tableRequest();
+
+  if (rows.length > 0) {
     let contentsCard = {
       id: 'Generos',
       icon: 'theaters',

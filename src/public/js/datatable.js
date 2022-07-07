@@ -43,14 +43,10 @@ class DataTable {
 
   async tableRequest(table, id, method, datos) {
     table = table ? table : this.tableName;
-    let route = this.requestRoutes[table]
-      ? this.requestRoutes[table]
-      : this.requestRoutes[this.tableName];
+    let route = this.requestRoutes[table] ? this.requestRoutes[table] : this.requestRoutes[this.tableName];
     route += id ? id : '';
 
-    datos = datos
-      ? datos
-      : { null: 'null' };
+    datos = datos ? datos : { null: 'null' };
 
     let requestContent = {};
 
@@ -61,7 +57,7 @@ class DataTable {
       };
     } else {
       requestContent = {
-        method: 'GET'
+        method: 'GET',
       };
     }
 
@@ -321,14 +317,18 @@ class DataTable {
     let img = document.createElement('img');
     img.src = link;
     img.setAttribute('loading', 'lazy');
-    img.addEventListener('error', () => {
-      let span = document.createElement('span');
-      span.classList.add('material-icons-round');
-      span.textContent = 'image_not_supported';
-      fragment.appendChild(span);
-    },{
-      passive: true,
-    });
+    img.addEventListener(
+      'error',
+      () => {
+        let span = document.createElement('span');
+        span.classList.add('material-icons-round');
+        span.textContent = 'image_not_supported';
+        fragment.appendChild(span);
+      },
+      {
+        passive: true,
+      }
+    );
 
     ahref.appendChild(img);
     fragment.append(ahref);
@@ -362,15 +362,16 @@ class DataTable {
     let container_pages_nav = document.createElement('div');
     container_pages_nav.classList.add('container_pages_nav');
     container_pages_nav.innerHTML = `
-    <ul>${this.actualPage > 1 ? '<li>1</li>' : ''}
-        ${this.actualPage > 3 ? '<li>' + (this.actualPage - 3) + '</li>' : ''}
-        ${this.actualPage > 2 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
-        <li class="actualPage_indicator">${this.actualPage}</li>
-        ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
-        ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
-        ${numPages != this.actualPage ? '<li>' + numPages + '</li>' : ''}
-        ${this.actualPage > 1 ? '<li data-type="rowRight"><span class="material-icons-round">chevron_left</span></li>' : ''}
-        ${numPages - this.actualPage > 0 ? '<li data-type="rowLeft"><span class="material-icons-round">chevron_right</span></li>' : ''}
+    <ul>
+      ${this.actualPage > 1 ? '<li>1</li>' : ''}
+      ${this.actualPage > 3 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
+      ${this.actualPage > 2 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
+      <li class="actualPage_indicator">${this.actualPage}</li>
+      ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
+      ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
+      ${numPages != this.actualPage ? '<li>' + numPages + '</li>' : ''}
+      ${this.actualPage > 1 ? '<li data-type="rowRight"><span class="material-icons-round">chevron_left</span></li>' : ''}
+      ${numPages - this.actualPage > 0 ? '<li data-type="rowLeft"><span class="material-icons-round">chevron_right</span></li>' : ''}
     </ul>`;
 
     this.container_rows_actions.innerHTML = '';
@@ -389,7 +390,7 @@ class DataTable {
       let disabled = false;
 
       let input = document.createElement('input');
-      input.value = inputValues ? inputValues[i+1].innerText : '';
+      input.value = inputValues ? inputValues[i + 1].innerText : '';
       input.name = this.describe[i] ? this.describe[i].Field : this.headers[i];
       input.placeholder = this.headers[i] ? this.headers[i] : '';
 
@@ -397,11 +398,8 @@ class DataTable {
         describeType = this.stringToArray(this.describe[i].Type, ' ', '(', ')');
 
         if (this.describe[i].Key == 'PRI') {
-          console.log('pri', this.describe[i].Key, input.value);
           disabled = true;
-          form.setAttribute('value', input.value);
-        } else {
-          disabled = false;
+          form.setAttribute('id', input.value); //se envia como parametro para editar
         }
 
         if (this.describe[i].Field == 'foto') {
@@ -432,7 +430,7 @@ class DataTable {
         this.renderTrs();
         this.renderTitleBar();
         this.renderRowActions();
-        //cuando tengo varios modals y quiero que se cierre el modal que estoy abriendo, 
+        //cuando tengo varios modals y quiero que se cierre el modal que estoy abriendo,
         //este es el metodo que se ejecuta para cerrar el modal.
         //sin que se cierren los demas modals.
         let modalContainer = saveBtn.parentElement.parentElement.parentElement;
@@ -556,7 +554,7 @@ class DataTable {
 
   async agregarFilas() {
     let containerBody = document.createElement('div');
-    
+
     let form = this.renderForm();
     let saveBtn = this.renderSaveFormBtn(form, 'add', 'Agregar');
 

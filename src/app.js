@@ -33,14 +33,20 @@ const estadisticasRoutes = require('./routes/estadisticas');
 //middlewares
 app.use(cors());
 app.use(morgan('dev'));
-app.use(myConnection(mysql, {
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  port: process.env.MYSQL_PORT,
-  database: process.env.MYSQL_DB,
-  dateStrings: true
-}, 'single'));
+app.use(
+  myConnection(
+    mysql,
+    {
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      port: process.env.MYSQL_PORT,
+      database: process.env.MYSQL_DB,
+      dateStrings: true,
+    },
+    'single'
+  )
+);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 

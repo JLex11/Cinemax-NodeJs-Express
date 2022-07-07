@@ -14,7 +14,7 @@ controller.listAll = (req, res) => {
     conn.query('SELECT * FROM usuario WHERE estado = "T"', (err, rows, fields) => {
       if (err) return res.json(err);
 
-      res.json({rows, fields});
+      res.json({ rows, fields });
     });
   });
 };
@@ -27,7 +27,7 @@ controller.listOne = (req, res) => {
       if (err) return res.json(err);
 
       if (rows != '') {
-        return res.json({rows, fields});
+        return res.json({ rows, fields });
       } else {
         return res.redirect(303, '/Usuarios/');
       }
@@ -54,7 +54,7 @@ controller.edit = (req, res) => {
 
     conn.query('SELECT * FROM usuario WHERE usuario = ?', user, (err, rows, fields) => {
       console.log(rows);
-      res.json({rows, fields});
+      res.json({ rows, fields });
     });
   });
 };

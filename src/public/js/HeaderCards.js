@@ -40,7 +40,7 @@ class HeaderCards {
     this.containerBody.classList.add('container_body');
     let fragment = document.createDocumentFragment();
 
-    this.bodyElements.forEach((bElement) => {
+    this.bodyElements.forEach(bElement => {
       let bodyElement = document.createElement('div');
       bodyElement.classList.add('body_element');
       bodyElement.innerHTML = `
