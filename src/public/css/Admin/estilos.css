@@ -43,13 +43,21 @@ html {
   --header-height: 40px;
 }
 
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 100,
+  'GRAD' 100,
+  'opsz' 48
+}
+
 body {
   padding: 10px 0 80px 0;
   background: var(--bg);
   font-family: var(--Font-Principal);
 }
 
-.material-icons-round {
+.material-symbols-outlined {
   user-select: none;
   -webkit-user-select: none;
 }
@@ -311,7 +319,7 @@ section {
   user-select: none;
 }
 
-.section_header span.material-icons-round {
+.section_header span.material-symbols-outlined {
   font-size: 28pt;
 }
 
@@ -352,7 +360,7 @@ section {
   display: none;
 }
 
-.header_item span.material-icons-round {
+.header_item span.material-symbols-outlined {
   text-shadow: -2px 3px 4px rgba(0, 0, 0, 0.292);
   font-size: 40pt;
 }
@@ -536,8 +544,7 @@ section {
 
 .item_estadisticas progress {
   width: 100%;
-  height: 15px;
-  animation: progressBar 1s 0.5s forwards;
+  height: 10px;
 }
 
 @keyframes progressBar {
@@ -595,19 +602,9 @@ section {
   position: absolute;
   height: 100%;
   left: 0;
-  top: -100%;
+  top: 0;
   background: var(--primary-color);
   z-index: 2;
-  animation: showingModal 0.3s forwards;
-}
-
-@keyframes showingModal {
-  0% {
-    top: -100%;
-  }
-  100% {
-    top: 0;
-  }
 }
 
 .modal-container > div {
@@ -751,12 +748,12 @@ td.estado_inactivo::before {
   display: none;
 }
 
-.inputFile_custom span.material-icons-round {
+.inputFile_custom span.material-symbols-outlined {
   font-size: 26pt;
   cursor: pointer;
 }
 
-.inputFile_custom:hover span.material-icons-round {
+.inputFile_custom:hover span.material-symbols-outlined {
   color: #2c2c2c;
   transform: scale(0.95);
 }
@@ -844,7 +841,7 @@ div.checkboxToButton::after {
   padding: 10px;
 }
 
-.container_buttons .btns {
+.container_buttons .btn {
   border-radius: 7px;
   display: flex;
   padding: 5px;
@@ -853,7 +850,7 @@ div.checkboxToButton::after {
   cursor: pointer;
 }
 
-.container_buttons .btns:hover {
+.container_buttons .btn:hover {
   background: rgb(0 0 0 / 8%);
 }
 
@@ -893,11 +890,11 @@ input[type='number']::-webkit-outer-spin-button {
   outline: none;
 }
 
-.container_pages_number span.material-icons-round {
+.container_pages_number span.material-symbols-outlined {
   font-size: 28pt;
   margin-left: -5%;
 }
-.container_pages_number span.material-icons-round:hover {
+.container_pages_number span.material-symbols-outlined:hover {
   background: rgb(0 0 0 / 10%);
   border-radius: 0 5px 5px 0;
   -webkit-border-radius: 0 5px 5px 0;
@@ -933,9 +930,9 @@ input[type='number']::-webkit-outer-spin-button {
 /* ------------ Prefer Color Scheme ----------- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #191919;
-    --border-item-dark: 1px solid #5f5f5f;
-    --primary-color: #262627;
+    --bg: #131313;
+    --border-item-dark: 1px solid #484848;
+    --primary-color: rgb(28, 28, 28);
     --target-styles-box-shadow: 0 5px 25px #000000b0;
   }
 
@@ -970,7 +967,7 @@ input[type='number']::-webkit-outer-spin-button {
   }
 
   .header_item {
-    background: linear-gradient(to right, #212d40, #152030);
+    background: linear-gradient(to right, #141b27, #131d2b);
   }
 
   .header_item:hover {
@@ -978,14 +975,14 @@ input[type='number']::-webkit-outer-spin-button {
   }
 
   .section_subbody:hover {
-    box-shadow: 0 0 20px #000000;
+    box-shadow: 0 0 20px #00000070;
   }
 
-  .container_buttons_and_form span.material-icons-round {
+  .container_buttons_and_form span.material-symbols-outlined {
     text-shadow: -1px 2px 4px #000000ad;
   }
 
-  .sub_container_buttons .btns:hover .material-icons-round {
+  .sub_container_buttons .btns:hover .material-symbols-outlined {
     color: rgb(205, 205, 205);
   }
 
@@ -1000,6 +997,10 @@ input[type='number']::-webkit-outer-spin-button {
 
   .modal-container .body-content input {
     background: rgba(0, 0, 0, 0.292);
+  }
+
+  .container_pages_nav ul li.actualPage_indicator {
+    background: var(--bg);
   }
 }
 
@@ -1020,7 +1021,7 @@ input[type='number']::-webkit-outer-spin-button {
     padding: 15px;
   }
 
-  div#chi2 .header_item span.material-icons-round {
+  div#chi2 .header_item span.material-symbols-outlined {
     font-size: 40pt;
   }
 

@@ -22,6 +22,8 @@ class DataTable {
   tbody;
   container_rows_actions;
 
+  checkeds;
+
   indexUltElement;
   numRowsPerPage;
   actualPage;
@@ -43,7 +45,9 @@ class DataTable {
 
   async tableRequest(table, id, method, datos) {
     table = table ? table : this.tableName;
-    let route = this.requestRoutes[table] ? this.requestRoutes[table] : this.requestRoutes[this.tableName];
+    let route = this.requestRoutes[table]
+      ? this.requestRoutes[table]
+      : this.requestRoutes[this.tableName];
     route += id ? id : '';
 
     datos = datos ? datos : { null: 'null' };
@@ -71,7 +75,8 @@ class DataTable {
 
   async makeTable() {
     const { rows, fields } = await this.tableRequest();
-    if (rows == undefined || rows == '' || rows == null || rows.length == 0) return;
+    if (rows == undefined || rows == '' || rows == null || rows.length == 0)
+      return;
 
     this.trs = rows;
     this.tableFields = fields;
@@ -93,12 +98,19 @@ class DataTable {
     this.thead = document.createElement('thead');
     this.tbody = document.createElement('tbody');
 
-    this.contNewRows = this.ls.getItem(this.tableName + '_contNewRows') ? this.ls.getItem(this.tableName + '_contNewRows') : 0;
+    this.contNewRows = this.ls.getItem(this.tableName + '_contNewRows')
+      ? this.ls.getItem(this.tableName + '_contNewRows')
+      : 0;
 
     this.indexUltElement = 0;
-    this.numRowsPerPage = this.ls.getItem(`numRowsPerPage${this.titulo}`) > 0 ? this.ls.getItem(`numRowsPerPage${this.titulo}`) : 1;
+    this.numRowsPerPage =
+      this.ls.getItem(`numRowsPerPage${this.titulo}`) > 0
+        ? this.ls.getItem(`numRowsPerPage${this.titulo}`)
+        : 1;
     this.actualPage = 1;
     this.cantRows = this.trs.length;
+
+    this.checkeds = [];
 
     this.renderTable();
   }
@@ -121,10 +133,17 @@ class DataTable {
 
     this.container_rows_actions.classList.add('container_rows_actions');
 
-    this.section_subbody.append(this.container_buttons, this.container_table, this.container_rows_actions);
+    this.section_subbody.append(
+      this.container_buttons,
+      this.container_table,
+      this.container_rows_actions
+    );
     this.section_subbody.classList.add('section_subbody');
 
-    this.container_subsection.append(this.container_section_subtitle, this.section_subbody);
+    this.container_subsection.append(
+      this.container_section_subtitle,
+      this.section_subbody
+    );
     this.container_subsection.classList.add('container_subsection');
     this.container_subsection.id = this.titulo;
 
@@ -133,59 +152,69 @@ class DataTable {
 
   renderTitleBar() {
     this.container_section_subtitle.innerHTML = `
-        <div class="section_subtitle">
-            <h2>${this.titulo}</h2>
-            <div>
-                <span class="material-icons-round">${this.titleIcon}</span>
-                <h2 class="contRows">${this.cantRows}</h2>
-            </div>
+    <div class="section_subtitle">
+        <h2>${this.titulo}</h2>
+        <div>
+            <span class="material-symbols-outlined">${this.titleIcon}</span>
+            <h2 class="contRows">${this.cantRows}</h2>
         </div>
-        `;
+    </div>
+    `;
   }
 
   renderActionBtns() {
-    const buttonsId = ['btn_add', 'btn_edit', 'btn_delete'];
-    const buttonsIcon = ['add', 'edit', 'delete'];
-    const buttonsFunctions = [
-      () => {
-        this.agregarFilas();
+    const btnFunctions = {
+      addRow: () => this.agregarFilas(),
+      editRow: () => this.checkeds.forEach(
+        checked => {
+          let checkedTr = checked.parentNode.parentNode;
+          this.editarFila(checkedTr);
+        }),
+      deleteRow: () => this.checkeds.forEach(
+        checked => {
+          let checkedTr = checked.parentNode.parentNode;
+          this.eliminarFila(checkedTr);
+        }),
+    };
+
+    const buttons = [
+      {
+        id: 'btn_add',
+        icon: 'add',
+        text: 'Agregar',
+        action: btnFunctions.addRow,
       },
-      () => {
-        let checkBox = this.container_table.querySelectorAll('input[type=checkbox]');
-        checkBox.forEach(check => {
-          if (check.checked) {
-            let fila = check.parentNode.parentNode;
-            this.editarFilas(fila.childNodes);
-          }
-        });
+      {
+        id: 'btn_edit',
+        icon: 'edit',
+        text: 'Editar',
+        action: btnFunctions.editRow,
       },
-      () => {
-        let checkBox = this.container_table.querySelectorAll('input[type=checkbox]');
-        checkBox.forEach(check => {
-          if (check.checked) {
-            let fila = check.parentNode.parentNode;
-            check.checked = false;
-            this.eliminarFila(fila);
-          }
-        });
-      },
+      {
+        id: 'btn_delete',
+        icon: 'delete',
+        text: 'Eliminar',
+        action: btnFunctions.deleteRow,
+      }
     ];
 
     let fragment = document.createDocumentFragment();
-    for (let i = 0; i < buttonsId.length; i++) {
-      let divBtn = document.createElement('div');
-      divBtn.innerHTML = `<span class="material-icons-round">${buttonsIcon[i]}</span>`;
-      divBtn.id = buttonsId[i];
-      divBtn.classList.add('btns');
-      divBtn.addEventListener('click', buttonsFunctions[i], { passive: true });
 
-      fragment.appendChild(divBtn);
-    }
+    buttons.forEach(button => {
+      let btnSpan = document.createElement('span');
+      btnSpan.classList.add('material-symbols-outlined', 'btn');
+      btnSpan.id = button.id;
+      btnSpan.innerText = button.icon;
+      btnSpan.addEventListener('click', button.action);
+
+      fragment.appendChild(btnSpan);
+    });   
+    
     this.container_buttons.appendChild(fragment);
   }
 
-  renderModal(body) {
-    let modalTitle = 'Modal Title';
+  renderModal(title, body) {
+    let modalTitle = this.capitalizarString(title);
 
     let containerModal = document.createElement('div');
     let containerHeader = document.createElement('div');
@@ -213,14 +242,20 @@ class DataTable {
         divModalActions.classList.add('modal-actions');
 
         let spanCloseButton = document.createElement('span');
-        spanCloseButton.classList.add('material-icons-round');
+        spanCloseButton.classList.add('material-symbols-outlined');
         spanCloseButton.textContent = 'close';
         spanCloseButton.addEventListener(
           'click',
           () => {
-            containerModal.remove();
-          },
-          { passive: true }
+            let containerAnimation = containerModal.animate([
+              { top: '0' },
+              { top: '-100%' },
+            ], { duration: 300 });
+
+            containerAnimation.onfinish = () => { 
+              containerModal.remove();
+            };
+          }
         );
 
         divModalActions.append(spanCloseButton);
@@ -237,6 +272,11 @@ class DataTable {
       bodyContent.append(body);
       return bodyContent;
     }
+
+    containerModal.animate([
+      { top: '-100%' },
+      { top: '0' },
+    ], { duration: 300 });
 
     containerModal.append(renderHeader(), renderBody());
     this.section_subbody.append(containerModal);
@@ -260,6 +300,7 @@ class DataTable {
   renderTrs() {
     let dFragment = document.createDocumentFragment();
     let rows = 0;
+
     for (let i = this.indexUltElement; i < this.cantRows; i++) {
       if (this.trs[i]) {
         let fila = this.trs[i];
@@ -270,11 +311,7 @@ class DataTable {
         tr.id = rowId;
 
         let td = document.createElement('td');
-        td.innerHTML = `
-          <input type="checkbox" id="${checkBoxId}" class="table_check">
-          <label for="${checkBoxId}">
-              <div class="custom_checkbox" id="custom_checkbox"></div>
-          </label>`;
+        td.appendChild(this.renderCheckBox(checkBoxId));
         tr.append(td);
 
         let describeCont = 0;
@@ -282,18 +319,55 @@ class DataTable {
           tr.appendChild(this.renderTd(fila[campo], describeCont));
           describeCont++;
         }
+
+        let slideIn = [
+          {opacity: '0',},
+          {opacity: '1',},
+        ];
+        tr.animate(slideIn, {duration: 500});
         dFragment.appendChild(tr);
       }
+
       rows++;
       if (rows == this.numRowsPerPage) break;
     }
+
     this.tbody.innerHTML = '';
     this.tbody.appendChild(dFragment);
+    this.checkedManagent();
+  }
+
+  renderCheckBox(checkBoxId) {
+    let fragment = document.createDocumentFragment();
+
+    let checkBox = document.createElement('input');
+    checkBox.type = 'checkbox';
+    checkBox.id = checkBoxId;
+    checkBox.classList.add('table_check');
+
+    this.checkeds.forEach(checked => { 
+      if (checked.id == checkBoxId) {
+        checkBox.checked = true;
+      }
+    });
+    /* if (this.checkeds.includes(checkBoxId)) {
+      checkBox.checked = true;
+    } */
+
+    let labelCheckBox = document.createElement('label');
+    labelCheckBox.htmlFor = checkBoxId;
+    labelCheckBox.innerHTML = `
+      <div class="custom_checkbox" id="custom_checkbox"></div>
+    `;
+    fragment.append(checkBox, labelCheckBox);
+    return fragment;
   }
 
   renderTd(campo, describeCont) {
     let td = document.createElement('td');
-    let describe = this.describe[describeCont] ? this.describe[describeCont] : false;
+    let describe = this.describe[describeCont]
+      ? this.describe[describeCont]
+      : false;
 
     if (describe && describe.Field == 'foto') {
       td.appendChild(this.renderImg(campo));
@@ -321,7 +395,7 @@ class DataTable {
       'error',
       () => {
         let span = document.createElement('span');
-        span.classList.add('material-icons-round');
+        span.classList.add('material-symbols-outlined');
         span.textContent = 'image_not_supported';
         fragment.appendChild(span);
       },
@@ -352,7 +426,7 @@ class DataTable {
     inputNumRows.setAttribute('min', 1);
 
     let buttonChangeRows = document.createElement('span');
-    buttonChangeRows.classList.add('material-icons-round');
+    buttonChangeRows.classList.add('material-symbols-outlined');
     buttonChangeRows.textContent = 'arrow_right';
 
     container_pages_number.append(inputNumRows, buttonChangeRows);
@@ -364,18 +438,20 @@ class DataTable {
     container_pages_nav.innerHTML = `
     <ul>
       ${this.actualPage > 1 ? '<li>1</li>' : ''}
-      ${this.actualPage > 3 ? '<li>' + (this.actualPage - 2) + '</li>' : ''}
       ${this.actualPage > 2 ? '<li>' + (this.actualPage - 1) + '</li>' : ''}
       <li class="actualPage_indicator">${this.actualPage}</li>
-      ${this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : ''}
+      ${ this.actualPage < numPages - 1 ? '<li>' + (this.actualPage + 1) + '</li>' : '' }
       ${numPages - this.actualPage > 2 ? '<li>...</li>' : ''}
       ${numPages != this.actualPage ? '<li>' + numPages + '</li>' : ''}
-      ${this.actualPage > 1 ? '<li data-type="rowRight"><span class="material-icons-round">chevron_left</span></li>' : ''}
-      ${numPages - this.actualPage > 0 ? '<li data-type="rowLeft"><span class="material-icons-round">chevron_right</span></li>' : ''}
+      ${ this.actualPage > 1 ? '<li data-type="rowRight"><span class="material-symbols-outlined">chevron_left</span></li>' : '' }
+      ${ numPages - this.actualPage > 0 ? '<li data-type="rowLeft"><span class="material-symbols-outlined">chevron_right</span></li>' : '' }
     </ul>`;
 
     this.container_rows_actions.innerHTML = '';
-    this.container_rows_actions.append(container_pages_number, container_pages_nav);
+    this.container_rows_actions.append(
+      container_pages_number,
+      container_pages_nav
+    );
     this.moveInRows(container_pages_nav);
   }
 
@@ -423,22 +499,38 @@ class DataTable {
     saveBtn.innerHTML = `<button class="btn_actualizar">${buttonName} ${this.tableName}</button>`;
     saveBtn.addEventListener(
       'click',
-      async () => {
+      async (e) => {
+        const modalContainer = e.composedPath()[4];
+
         let formData = new FormData(form);
-        let { rows } = await this.tableRequest(null, `${action}/${form.id}`, 'POST', formData);
+        let { rows } = await this.tableRequest(
+          null,
+          `${action}/${form.id}`,
+          'POST',
+          formData
+        );
         this.trs = await rows;
         this.renderTrs();
         this.renderTitleBar();
         this.renderRowActions();
-        //cuando tengo varios modals y quiero que se cierre el modal que estoy abriendo,
-        //este es el metodo que se ejecuta para cerrar el modal.
-        //sin que se cierren los demas modals.
-        let modalContainer = saveBtn.parentElement.parentElement.parentElement;
+        
         modalContainer.remove();
       },
       { passive: true }
     );
     return saveBtn;
+  }
+
+  checkedManagent() {
+    this.tbody.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      input.addEventListener('change', () => {
+        if (input.checked) {
+          this.checkeds.push(input);
+        } else {
+          this.checkeds.splice(this.checkeds.indexOf(input), 1);
+        }
+      });
+    });
   }
 
   changeNumRowsPerPage(inputParent) {
@@ -451,10 +543,19 @@ class DataTable {
       input.addEventListener(
         'keydown',
         e => {
-          if (e.key == 'Enter' && regVal.test(input.value) && input.value != this.numRowsPerPage) {
-            this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
-            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-            this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+          if (
+            e.key == 'Enter' &&
+            regVal.test(input.value) &&
+            input.value != this.numRowsPerPage
+          ) {
+            this.numRowsPerPage =
+              input.value > this.cantRows ? this.cantRows : input.value;
+            this.indexUltElement =
+              this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+            this.ls.setItem(
+              `numRowsPerPage${this.titulo}`,
+              this.numRowsPerPage
+            );
             this.renderRowActions();
             this.renderTrs();
 
@@ -468,9 +569,14 @@ class DataTable {
         'click',
         () => {
           if (regVal.test(input.value) && input.value != this.numRowsPerPage) {
-            this.numRowsPerPage = input.value > this.cantRows ? this.cantRows : input.value;
-            this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
-            this.ls.setItem(`numRowsPerPage${this.titulo}`, this.numRowsPerPage);
+            this.numRowsPerPage =
+              input.value > this.cantRows ? this.cantRows : input.value;
+            this.indexUltElement =
+              this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+            this.ls.setItem(
+              `numRowsPerPage${this.titulo}`,
+              this.numRowsPerPage
+            );
             this.renderRowActions();
             this.renderTrs();
 
@@ -496,7 +602,8 @@ class DataTable {
         let rowNavSelected = parseInt(evt.target.textContent, 10);
         if (!isNaN(rowNavSelected)) {
           this.actualPage = rowNavSelected;
-          this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+          this.indexUltElement =
+            this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
           this.renderRowActions();
           this.renderTrs();
         }
@@ -512,13 +619,15 @@ class DataTable {
           () => {
             if (li.dataset.type == 'rowRight') {
               this.actualPage--;
-              this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+              this.indexUltElement =
+                this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
               this.renderRowActions();
               this.renderTrs();
             }
             if (li.dataset.type == 'rowLeft') {
               this.actualPage++;
-              this.indexUltElement = this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
+              this.indexUltElement =
+                this.actualPage * this.numRowsPerPage - this.numRowsPerPage;
               this.renderRowActions();
               this.renderTrs();
             }
@@ -559,17 +668,18 @@ class DataTable {
     let saveBtn = this.renderSaveFormBtn(form, 'add', 'Agregar');
 
     containerBody.append(form, saveBtn);
-    this.renderModal(containerBody);
+    this.renderModal(`Agregar ${this.tableName}`, containerBody);
   }
 
-  async editarFilas(tdCampos) {
+  async editarFila(fila) {
+    let campos = fila.childNodes;
     let containerBody = document.createElement('div');
 
-    let form = this.renderForm(tdCampos);
+    let form = this.renderForm(campos);
     let saveBtn = this.renderSaveFormBtn(form, 'update', 'Actualizar');
 
     containerBody.append(form, saveBtn);
-    this.renderModal(containerBody);
+    this.renderModal(`Editar ${this.tableName}`, containerBody);
   }
 
   async eliminarFila(fila) {

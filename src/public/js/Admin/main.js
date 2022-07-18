@@ -279,7 +279,7 @@ function isScrollableElement(elementParent, overflowElement) {
   buttonRight.classList.add('scrollButtons');
 
   buttonLeft.innerHTML = `
-        <span class="material-icons-round">navigate_before</span>`;
+        <span class="material-symbols-outlined">navigate_before</span>`;
   buttonLeft.addEventListener(
     'click',
     () => {
@@ -289,7 +289,7 @@ function isScrollableElement(elementParent, overflowElement) {
   );
 
   buttonRight.innerHTML = `
-        <span class="material-icons-round">navigate_next</span>`;
+        <span class="material-symbols-outlined">navigate_next</span>`;
   buttonRight.addEventListener(
     'click',
     () => {

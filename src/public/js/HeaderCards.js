@@ -31,7 +31,7 @@ class HeaderCards {
 
   renderIcon() {
     let spanIcon = document.createElement('span');
-    spanIcon.classList.add('material-icons-round');
+    spanIcon.classList.add('material-symbols-outlined');
     spanIcon.innerText = this.icon;
     this.headerItem.appendChild(spanIcon);
   }

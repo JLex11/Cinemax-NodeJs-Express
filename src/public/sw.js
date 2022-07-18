@@ -15,14 +15,13 @@ const urlToCache = [
   './images/user.webp',
   './pwa/icon-192x192.webp',
   './apple-touch-icon.webp',
-  'https://fonts.googleapis.com/icon?family=Material+Icons+Round',
+  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200',
   'https://fonts.googleapis.com',
   'https://fonts.gstatic.com',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap',
   './js/Chart.js',
   './js/HeaderCards.js',
 ];
-/* './js/Datatable.js', */
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
